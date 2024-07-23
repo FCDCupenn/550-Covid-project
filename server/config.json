@@ -1,0 +1,9 @@
+{
+  "rds_host": "database-1.c8d5iivexenj.us-east-1.rds.amazonaws.com",
+  "rds_port": "3306",
+  "rds_user": "admin",
+  "rds_password": "1qaz2wsx3edc",
+  "rds_db": "vaccine_database",
+  "server_host": "localhost",
+  "server_port": "8080"
+}
