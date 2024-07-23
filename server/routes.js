@@ -197,6 +197,87 @@ const fully_vaccination_count_date = async function(req, res) {
   });
 }
 
+// 2024-07-23 
+
+const max_covid_data = async function(req, res) {
+  connection.query(`
+  SELECT country_name,
+         MAX(total_deaths) AS max_deaths,
+         MAX(total_cases) AS max_cases
+  FROM COVID_Case_Country
+  WHERE country_name NOT LIKE '%income%' AND country_name != 'World'
+  GROUP BY country_name;
+  `, (err, data) => {
+      if (err || data.length === 0) {
+          console.log(err);
+          res.json({});
+      } else {
+          res.json(data);
+      }
+  });
+}
+
+const density_death_relation = async function(req, res) {
+  connection.query(`
+  SELECT p.Country, p.\`Density(P/Km²)\`, MAX(c.total_deaths) AS max_total_deaths
+  FROM WorldPopulation2023 p
+  JOIN COVID_Case_Country c ON p.Country = c.country_name
+  GROUP BY p.Country, p.\`Density(P/Km²)\`
+  ORDER BY p.\`Density(P/Km²)\` DESC;
+  `, (err, data) => {
+      if (err || data.length === 0) {
+          console.log(err);
+          res.json({});
+      } else {
+          res.json(data);
+      }
+  });
+}
+
+const vaccination_case_fatality_analysis = async function(req, res) {
+  connection.query(`
+  WITH MaxVaccineDates AS (
+      SELECT country_id, MAX(date) AS max_vaccination_date FROM Country_Vaccination_Data GROUP BY country_id
+  ), MaxCaseDates AS (
+      SELECT country_id, MAX(date) AS max_case_date FROM COVID_Case_Country GROUP BY country_id
+  )
+  SELECT
+      cvd.country_name,
+      cvd.date AS vaccination_date,
+      cvd.total_vaccinations,
+      cvd.people_vaccinated,
+      cvd.people_fully_vaccinated,
+      cc.date AS case_date,
+      cc.total_cases,
+      cc.total_deaths,
+      ROUND((cc.total_deaths / NULLIF(cc.total_cases, 0)) * 100, 2) AS case_fatality_rate,
+      ROUND((cvd.people_fully_vaccinated / NULLIF(wrp.Population2023, 0)) * 100, 2) AS fully_vaccinated_percentage,
+      ROUND((cvd.total_vaccinations / NULLIF(wrp.Population2023, 0)) * 100, 2) AS vaccination_coverage_percentage
+  FROM
+      Country_Vaccination_Data cvd
+  JOIN
+      MaxVaccineDates mvd ON cvd.country_id = mvd.country_id AND cvd.date = mvd.max_vaccination_date
+  JOIN
+      COVID_Case_Country cc ON cvd.country_id = cc.country_id
+  JOIN
+      MaxCaseDates mcd ON cc.country_id = mcd.country_id AND cc.date = mcd.max_case_date
+  JOIN
+      WorldPopulation2023 wrp ON cvd.country_name = wrp.Country
+  WHERE
+      cc.total_cases > 10000
+  ORDER BY
+      case_fatality_rate DESC;
+  `, (err, data) => {
+      if (err || data.length === 0) {
+          console.log(err);
+          res.json({});
+      } else {
+          res.json(data);
+      }
+  });
+}
+
+
 /************************
  * ADVANCED INFO ROUTES *
  ************************/
