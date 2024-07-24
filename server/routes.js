@@ -197,7 +197,7 @@ const fully_vaccination_count_date = async function(req, res) {
   });
 }
 
-// 2024-07-23 
+// 2024-07-23 by Yuling
 
 const max_covid_data = async function(req, res) {
   connection.query(`
@@ -403,5 +403,8 @@ module.exports = {
   pharmacy_store_count,
   fully_vaccination_count,
   fully_vaccination_count_date,
+  max_covid_data,
+  density_death_relation,
+  vaccination_case_fatality_analysis,
 
 }
