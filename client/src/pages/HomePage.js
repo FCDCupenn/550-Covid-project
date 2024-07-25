@@ -12,8 +12,10 @@ export default function HomePage() {
   ];
 
   return (
-    <div>
+    <Container maxWidth="lg"> 
+   <div>
       <MapComponent data={testData} />
     </div>
+    </Container>
   );
 };

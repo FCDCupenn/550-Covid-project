@@ -1,5 +1,7 @@
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import Divider from '@mui/material/Divider';
+import './styles.css';
 
 const MapComponent = ({ data }) => {
   // 计算总数据
@@ -9,32 +11,31 @@ const MapComponent = ({ data }) => {
   return (
     <div>
       {/* 数据总览面板 */}
-      <div style={{
-  display: 'flex',
-  justifyContent: 'space-around',
-  alignItems: 'center',
-  padding: '20px',
-  background: 'black', // 渐变背景
-  color: 'white',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  borderRadius: '0px',
-  margin: '0px auto',
-
-}}>
+      <div className="data-overview-panel">
   <div style={{ textAlign: 'center' }}>
     <h2 style={{ margin: '0 0 10px 0' }}>TOTAL CASES</h2>
-    <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>{totalCases.toLocaleString()}</p>
+    <p style={{ fontSize: '30px',  margin: '0' }}>{totalCases.toLocaleString()}</p>
   </div>
+  <Divider orientation="vertical" flexItem style={{ margin: '0 20px' }} />
   <div style={{ textAlign: 'center' }}>
     <h2 style={{ margin: '0 0 10px 0' }}>TOTAL DEATHS</h2>
-    <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>{totalDeaths.toLocaleString()}</p>
+    <p style={{ fontSize: '30px', margin: '0', color: 'red' }}>{totalDeaths.toLocaleString()}</p>
+  </div>
+  <Divider orientation="vertical" flexItem style={{ margin: '0 20px' }} />
+  <div style={{ textAlign: 'center' }}>
+    <h2 style={{ margin: '0 0 10px 0' }}>TOTAL RECOVERED</h2>
+    <p style={{ fontSize: '30px', margin: '0' }}>xxxxx</p>
   </div>
 </div>
 
 
-      {/* 地图容器 */}
-      <MapContainer center={[51.505, -0.09]} zoom={2} style={{ height: "400px", width: "100%" }}>
-        <TileLayer
+     {/* 地图容器 */}
+      <MapContainer
+        center={[51.505, -0.09]}
+        zoom={2}
+        className="map-container"
+      >
+         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {data.map((countryData, index) => (
