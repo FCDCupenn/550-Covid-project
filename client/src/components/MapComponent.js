@@ -19,3 +19,5 @@ const MapComponent = ({ data }) => {
     </MapContainer>
   );
 };
+
+export default MapComponent;
