@@ -5,6 +5,7 @@ import { indigo, amber, grey, deepPurple, red } from '@mui/material/colors';
 
 import NavBar from './components/NavBar';
 import HomePage from './pages/HomePage';
+import PharmacyPage from './pages/PharmacyPage';
 
 
 // createTheme enables you to customize the look and feel of your app past the default
@@ -61,8 +62,8 @@ export default function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          {/* <Route path="/albums" element={<AlbumsPage />} />
-          <Route path="/albums/:album_id" element={<AlbumInfoPage />} />
+          <Route path="/pharmacy" element={<PharmacyPage />} />
+          {/* <Route path="/albums/:album_id" element={<AlbumInfoPage />} />
           <Route path="/songs" element={<SongsPage />} /> */}
         </Routes>
       </BrowserRouter>

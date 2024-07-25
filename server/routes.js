@@ -122,6 +122,47 @@ const author = async function(req, res) {
 //   });
 // }
 
+
+const pharmacy_general_info = async function(req, res) {
+  // given pharmacy, return all store count by each state
+  const page = req.query.page;
+  const pageSize = req.query.page_size ?? 10;
+  const offset = page ? (page - 1) * pageSize : 0;
+ 
+  connection.query(`
+SELECT
+    loc_name,
+    city,
+    state,
+    GROUP_CONCAT(med_name ORDER BY med_name SEPARATOR '; ') AS med_names,
+    category,
+    longitude,
+    latitude
+FROM
+    Pharmacy
+GROUP BY
+    loc_name,
+    city,
+    state,
+    category,
+    longitude,
+    latitude
+    LIMIT ${pageSize} OFFSET ${offset};
+  
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data);
+      // console.log('API Data:', data);
+    }
+  });
+}
+
+
+
+
 const pharmacy_store_count = async function(req, res) {
   // given pharmacy, return all store count by each state
   const page = req.query.page;
@@ -145,6 +186,9 @@ const pharmacy_store_count = async function(req, res) {
     }
   });
 }
+
+
+
 
 const fully_vaccination_count = async function(req, res) {
   // given state_vaccination_data, return all people vaccination count by each state
@@ -401,6 +445,7 @@ const vaccination_case_fatality_analysis = async function(req, res) {
 module.exports = {
   author,
   pharmacy_store_count,
+  pharmacy_general_info,
   fully_vaccination_count,
   fully_vaccination_count_date,
   max_covid_data,
