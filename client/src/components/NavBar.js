@@ -1,44 +1,72 @@
-import { AppBar, Container, Toolbar, Typography } from '@mui/material'
+import { AppBar, Box, Container, Toolbar, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 
-// The hyperlinks in the NavBar contain a lot of repeated formatting code so a
-// helper component NavText local to the file is defined to prevent repeated code.
+// Helper component for navigation text to avoid repeated code
 function NavText({ href, text, isMain }) {
+  const linkStyle = {
+    color: 'inherit',
+    textDecoration: 'none',
+    transition: 'color 0.3s, background-color 0.3s',  // Ensuring background color also transitions smoothly
+    padding: '10px',  // Adding some padding for better visual appearance
+    borderRadius: '10px',  // Rounded corners
+  };
+
+  const hoverStyle = {
+    color: '#ffeb3b',
+    backgroundColor: '#1976d2'  // Blue background on hover
+  };
+
+  const activeStyle = {
+    color: '#f44336',  // Red text when active
+    backgroundColor: '#1565c0'  // Darker blue background when active
+  };
+
   return (
     <Typography
-      variant={isMain ? 'h5' : 'h7'}
+      variant={isMain ? 'h6' : 'h6'}
       noWrap
       style={{
-        marginRight: '30px',
-        fontFamily: 'monospace',
+        marginRight: '20px',
+        fontFamily: 'Times New Roman',
         fontWeight: 700,
-        letterSpacing: '.3rem',
+        letterSpacing: '0rem',
       }}
     >
       <NavLink
         to={href}
-        style={{
-          color: 'inherit',
-          textDecoration: 'none',
+        style={linkStyle}
+        activeStyle={activeStyle}
+        onMouseEnter={e => {
+          e.target.style.color = hoverStyle.color;
+          e.target.style.backgroundColor = hoverStyle.backgroundColor;  // Applying background color on hover
+        }}
+        onMouseLeave={e => {
+          e.target.style.color = linkStyle.color;
+          e.target.style.backgroundColor = 'transparent';  // Resetting background color on mouse leave
         }}
       >
         {text}
       </NavLink>
     </Typography>
-  )
+  );
 }
 
-// Here, we define the NavBar. Note that we heavily leverage MUI components
-// to make the component look nice. Feel free to try changing the formatting
-// props to how it changes the look of the component.
+// NavBar component with hover and active styles
 export default function NavBar() {
   return (
     <AppBar position='static'>
       <Container maxWidth='xl'>
         <Toolbar disableGutters>
-          <NavText href='/' text='Coronavirus disease (COVID-19) pandemic' isMain />
-          <NavText href='/albums' text='Pharmacy' />
-          <NavText href='/songs' text='Vaccine' />
+          <Box sx={{ flexGrow: 1, display: 'flex' }}> 
+            <NavText href='/' text='Home' isMain />
+            <NavText href='/pharmacy' text='Pharmacy' />
+            <NavText href='/covid-data' text='COVID Data' />
+            <NavText href='/vaccination' text='Vaccination' />
+          </Box>
+          <Box sx={{ flexGrow: 0, display: 'flex' }}>  
+            <NavText href='/login' text='login' />
+            <NavText href='/register' text='register' />
+          </Box>
         </Toolbar>
       </Container>
     </AppBar>
