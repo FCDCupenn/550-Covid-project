@@ -406,5 +406,6 @@ module.exports = {
   max_covid_data,
   density_death_relation,
   vaccination_case_fatality_analysis,
+  // add more routes
 
 }
