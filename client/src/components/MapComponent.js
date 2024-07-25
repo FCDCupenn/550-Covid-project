@@ -9,11 +9,28 @@ const MapComponent = ({ data }) => {
   return (
     <div>
       {/* 数据总览面板 */}
-      <div style={{ padding: '10px', background: '#f2f2f2', textAlign: 'center' }}>
-        <h2>Global COVID-19 Data Overview</h2>
-        <p><b>Total Cases:</b> {totalCases.toLocaleString()}</p>
-        <p><b>Total Deaths:</b> {totalDeaths.toLocaleString()}</p>
-      </div>
+      <div style={{
+  display: 'flex',
+  justifyContent: 'space-around',
+  alignItems: 'center',
+  padding: '20px',
+  background: 'black', // 渐变背景
+  color: 'white',
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  borderRadius: '0px',
+  margin: '0px auto',
+
+}}>
+  <div style={{ textAlign: 'center' }}>
+    <h2 style={{ margin: '0 0 10px 0' }}>TOTAL CASES</h2>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>{totalCases.toLocaleString()}</p>
+  </div>
+  <div style={{ textAlign: 'center' }}>
+    <h2 style={{ margin: '0 0 10px 0' }}>TOTAL DEATHS</h2>
+    <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0' }}>{totalDeaths.toLocaleString()}</p>
+  </div>
+</div>
+
 
       {/* 地图容器 */}
       <MapContainer center={[51.505, -0.09]} zoom={2} style={{ height: "400px", width: "100%" }}>

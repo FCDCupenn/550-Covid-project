@@ -1,71 +1,60 @@
 import { AppBar, Box, Container, Toolbar, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
+import HomeIcon from '@mui/icons-material/Home';
 
-// Helper component for navigation text to avoid repeated code
-function NavText({ href, text, isMain }) {
+function NavText({ href, text, IconComponent }) {
   const linkStyle = {
+    fontFamily: 'Dosis, sans-serif',
     color: 'inherit',
     textDecoration: 'none',
-    transition: 'color 0.3s, background-color 0.3s',  // Ensuring background color also transitions smoothly
-    padding: '10px',  // Adding some padding for better visual appearance
-    borderRadius: '10px',  // Rounded corners
+    transition: 'color 0.3s, background-color 0.3s',
+    padding: '15px',
+    borderRadius: '0px',
+    display: 'flex', // 确保内容垂直居中
+    alignItems: 'center', // 内容垂直居中
+    height: '100%', // 链接填满整个高度
+    boxSizing: 'border-box' // 确保padding计算在内
   };
 
   const hoverStyle = {
-    color: '#ffeb3b',
-    backgroundColor: '#1976d2'  // Blue background on hover
-  };
-
-  const activeStyle = {
-    color: '#f44336',  // Red text when active
-    backgroundColor: '#1565c0'  // Darker blue background when active
+    color: '#ffffff',
+    backgroundColor: '#000000',
+    borderRadius: '0px'
   };
 
   return (
-    <Typography
-      variant={isMain ? 'h6' : 'h6'}
-      noWrap
-      style={{
-        marginRight: '20px',
-        fontFamily: 'Times New Roman',
-        fontWeight: 700,
-        letterSpacing: '0rem',
-      }}
-    >
+    <Typography variant="h6" noWrap component="div" style={{ display: 'flex', alignItems: 'center' }}>
       <NavLink
         to={href}
         style={linkStyle}
-        activeStyle={activeStyle}
         onMouseEnter={e => {
-          e.target.style.color = hoverStyle.color;
-          e.target.style.backgroundColor = hoverStyle.backgroundColor;  // Applying background color on hover
+          Object.assign(e.currentTarget.style, hoverStyle);
         }}
         onMouseLeave={e => {
-          e.target.style.color = linkStyle.color;
-          e.target.style.backgroundColor = 'transparent';  // Resetting background color on mouse leave
+          e.currentTarget.style.color = 'inherit';
+          e.currentTarget.style.backgroundColor = 'transparent';
         }}
       >
+        {IconComponent && <IconComponent style={{ marginRight: '8px' }} />}
         {text}
       </NavLink>
     </Typography>
   );
 }
 
-// NavBar component with hover and active styles
 export default function NavBar() {
   return (
-    <AppBar position='static'>
-      <Container maxWidth='xl'>
-        <Toolbar disableGutters>
-          <Box sx={{ flexGrow: 1, display: 'flex' }}> 
-            <NavText href='/' text='Home' isMain />
-            <NavText href='/pharmacy' text='Pharmacy' />
-            <NavText href='/covid-data' text='COVID Data' />
-            <NavText href='/vaccination' text='Vaccination' />
+    <AppBar position="static" style={{ background: '#333' }}>
+      <Container maxWidth="xl">
+        <Toolbar disableGutters style={{ height: '64px', display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ flexGrow: 1, display: 'flex', height: '100%' }}>
+            <NavText href="/" IconComponent={HomeIcon} />
+            <NavText href="/pharmacy" text="pharmacy" />
+            <NavText href="/covid-data" text="COVID Data" />
+            <NavText href="/vaccination" text="vaccination" />
           </Box>
-          <Box sx={{ flexGrow: 0, display: 'flex' }}>  
-            <NavText href='/login' text='login' />
-            <NavText href='/register' text='register' />
+          <Box sx={{ flexGrow: 0, display: 'flex', height: '100%' }}>
+            <NavText href="/login" text="login" />
           </Box>
         </Toolbar>
       </Container>
