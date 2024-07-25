@@ -13,7 +13,6 @@ export default function HomePage() {
 
   return (
     <div>
-      <h1>COVID-19 Map</h1>
       <MapComponent data={testData} />
     </div>
   );
