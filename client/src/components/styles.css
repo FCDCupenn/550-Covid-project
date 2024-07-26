@@ -1,0 +1,21 @@
+/* CSS setting for MapComponent.js */
+.map-container {
+  height: 400px;
+  width: 100%;
+  border: 1px solid #555;
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+  border-radius: 4px;
+  /* overflow: hidden; */
+}
+
+.data-overview-panel {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 20px;
+  background: transparent; /* 渐变背景 */
+  color: black;
+  border-radius: 0px;
+  margin: 0px auto;
+  font-family: 'EB Garamond', serif;
+}
