@@ -1,5 +1,5 @@
-const mysql = require('mysql')
-const config = require('./config.json')
+const mysql = require('mysql');
+const config = require('./config.json');
 
 // Creates MySQL connection using database credential provided in config.json
 // Do not edit. If the connection fails, make sure to check that config.json is filled out correctly
@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
   user: config.rds_user,
   password: config.rds_password,
   port: config.rds_port,
-  database: config.rds_db
+  database: config.rds_db,
 });
 connection.connect((err) => err && console.log(err));
 
@@ -17,7 +17,7 @@ connection.connect((err) => err && console.log(err));
  ******************/
 
 // Route 1: GET /author/:type
-const author = async function(req, res) {
+const author = async function (req, res) {
   // TODO (TASK 1): replace the values of name and pennKey with your own
   const name = 'Xin Sun';
   const pennKey = '77821283';
@@ -32,9 +32,13 @@ const author = async function(req, res) {
     res.send(`Created by ${pennKey}`);
   } else {
     // we can also send back an HTTP status code to indicate an improper request
-    res.status(400).send(`'${req.params.type}' is not a valid author type. Valid types are 'name' and 'pennkey'.`);
+    res
+      .status(400)
+      .send(
+        `'${req.params.type}' is not a valid author type. Valid types are 'name' and 'pennkey'.`
+      );
   }
-}
+};
 
 // // Route 2: GET /random
 // const random = async function(req, res) {
@@ -89,7 +93,7 @@ const author = async function(req, res) {
 //   FROM Pharmacy
 //   GROUP BY state
 //   ORDER BY COUNT(store_id) DESC;
-  
+
 //   `, [store_id], (err, data) => {
 //     if (err || data.length === 0) {
 //       console.log(err);
@@ -111,7 +115,7 @@ const author = async function(req, res) {
 //   WHERE state_name != 'United States'
 //   GROUP BY state_name
 //   ORDER BY MAX(people_fully_vaccinated) DESC;
-  
+
 //   `, [album_id], (err, data) => {
 //     if (err || data.length === 0) {
 //       console.log(err);
@@ -122,14 +126,14 @@ const author = async function(req, res) {
 //   });
 // }
 
-
-const pharmacy_general_info = async function(req, res) {
+const pharmacy_general_info = async function (req, res) {
   // given pharmacy, return all store count by each state
   const page = req.query.page;
   const pageSize = req.query.page_size ?? 10;
   const offset = page ? (page - 1) * pageSize : 0;
- 
-  connection.query(`
+
+  connection.query(
+    `
 SELECT
     loc_name,
     city,
@@ -149,54 +153,54 @@ GROUP BY
     latitude
     LIMIT ${pageSize} OFFSET ${offset};
   
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.json({});
-    } else {
-      res.json(data);
-      // console.log('API Data:', data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+        // console.log('API Data:', data);
+      }
     }
-  });
-}
+  );
+};
 
-
-
-
-const pharmacy_store_count = async function(req, res) {
+const pharmacy_store_count = async function (req, res) {
   // given pharmacy, return all store count by each state
   const page = req.query.page;
   const pageSize = req.query.page_size ?? 10;
   const offset = page ? (page - 1) * pageSize : 0;
- 
-  connection.query(`
+
+  connection.query(
+    `
   SELECT state, COUNT(DISTINCT store_id) AS provider_count
   FROM Pharmacy
   GROUP BY state
   ORDER BY COUNT(store_id) DESC
     LIMIT ${pageSize} OFFSET ${offset};
   
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.json({});
-    } else {
-      res.json(data);
-      // console.log('API Data:', data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+        // console.log('API Data:', data);
+      }
     }
-  });
-}
+  );
+};
 
-
-
-
-const fully_vaccination_count = async function(req, res) {
+const fully_vaccination_count = async function (req, res) {
   // given state_vaccination_data, return all people vaccination count by each state
   const page = req.query.page;
   const pageSize = req.query.page_size ?? 10;
   const offset = page ? (page - 1) * pageSize : 0;
- 
-  connection.query(`
+
+  connection.query(
+    `
  SELECT state_name, MAX(people_fully_vaccinated) AS total_fully_vaccinated
   FROM State_Vaccination_Data
   WHERE state_name != 'United States'
@@ -204,23 +208,24 @@ const fully_vaccination_count = async function(req, res) {
   ORDER BY MAX(people_fully_vaccinated) DESC
   LIMIT ${pageSize} OFFSET ${offset};
   
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.json({});
-    } else {
-      res.json(data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+      }
     }
-  });
-}
+  );
+};
 
-
-
-const fully_vaccination_count_date = async function(req, res) {
+const fully_vaccination_count_date = async function (req, res) {
   // given a state, output the vaccine count and date
-  const state_name = req.params.state_name
+  const state_name = req.params.state_name;
 
-  connection.query(`
+  connection.query(
+    `
   SELECT svd.state_name, svd.people_fully_vaccinated, svd.date
   FROM State_Vaccination_Data svd
   JOIN (
@@ -231,55 +236,65 @@ const fully_vaccination_count_date = async function(req, res) {
   ) max_svd ON svd.state_name = max_svd.state_name AND svd.people_fully_vaccinated = max_svd.max_vaccinated
   ORDER BY svd.people_fully_vaccinated DESC;
 
-`, [state_name], (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.json({});
-    } else {
-      res.json(data);
+`,
+    [state_name],
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+      }
     }
-  });
-}
+  );
+};
 
 // 2024-07-23 by Yuling
 
-const max_covid_data = async function(req, res) {
-  connection.query(`
+const max_covid_data = async function (req, res) {
+  connection.query(
+    `
   SELECT country_name,
          MAX(total_deaths) AS max_deaths,
          MAX(total_cases) AS max_cases
   FROM COVID_Case_Country
   WHERE country_name NOT LIKE '%income%' AND country_name != 'World'
   GROUP BY country_name;
-  `, (err, data) => {
+  `,
+    (err, data) => {
       if (err || data.length === 0) {
-          console.log(err);
-          res.json({});
+        console.log(err);
+        res.json({});
       } else {
-          res.json(data);
+        res.json(data);
       }
-  });
-}
+    }
+  );
+};
 
-const density_death_relation = async function(req, res) {
-  connection.query(`
+const density_death_relation = async function (req, res) {
+  connection.query(
+    `
   SELECT p.Country, p.\`Density(P/Km²)\`, MAX(c.total_deaths) AS max_total_deaths
   FROM WorldPopulation2023 p
   JOIN COVID_Case_Country c ON p.Country = c.country_name
   GROUP BY p.Country, p.\`Density(P/Km²)\`
   ORDER BY p.\`Density(P/Km²)\` DESC;
-  `, (err, data) => {
+  `,
+    (err, data) => {
       if (err || data.length === 0) {
-          console.log(err);
-          res.json({});
+        console.log(err);
+        res.json({});
       } else {
-          res.json(data);
+        res.json(data);
       }
-  });
-}
+    }
+  );
+};
 
-const vaccination_case_fatality_analysis = async function(req, res) {
-  connection.query(`
+const vaccination_case_fatality_analysis = async function (req, res) {
+  connection.query(
+    `
   WITH MaxVaccineDates AS (
       SELECT country_id, MAX(date) AS max_vaccination_date FROM Country_Vaccination_Data GROUP BY country_id
   ), MaxCaseDates AS (
@@ -311,16 +326,17 @@ const vaccination_case_fatality_analysis = async function(req, res) {
       cc.total_cases > 10000
   ORDER BY
       case_fatality_rate DESC;
-  `, (err, data) => {
+  `,
+    (err, data) => {
       if (err || data.length === 0) {
-          console.log(err);
-          res.json({});
+        console.log(err);
+        res.json({});
       } else {
-          res.json(data);
+        res.json(data);
       }
-  });
-}
-
+    }
+  );
+};
 
 /************************
  * ADVANCED INFO ROUTES *
@@ -358,7 +374,7 @@ const vaccination_case_fatality_analysis = async function(req, res) {
 //     FROM Songs s
 //     JOIN Albums a on s.album_id = a.album_id
 //     ORDER BY plays DESC
-//     LIMIT ${pageSize} OFFSET ${offset}`, 
+//     LIMIT ${pageSize} OFFSET ${offset}`,
 //     (err, data) => {
 //       if (err || data.length === 0) {
 //         console.log(err);
@@ -369,9 +385,6 @@ const vaccination_case_fatality_analysis = async function(req, res) {
 //     });
 //   }
 // }
-
-
-
 
 // // Route 8: GET /top_albums
 // const top_albums = async function(req, res) {
@@ -399,7 +412,6 @@ const vaccination_case_fatality_analysis = async function(req, res) {
 //     }
 //   });
 // }
-
 
 // // Route 9: GET /search_albums
 // const search_songs = async function(req, res) {
@@ -440,7 +452,84 @@ const vaccination_case_fatality_analysis = async function(req, res) {
 
 // }
 
+const login = (req, res) => {
+  // 1. Get the username and password from the request body
+  const { username, password } = req.body;
 
+  // 2. Validate the input
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: 'Username and password cannot be empty' });
+  }
+
+  // 3. Query the database to verify the username and password
+  connection.query(
+    'SELECT * FROM users WHERE username = ?',
+    [username],
+    (err, data) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error querying the database' });
+      }
+
+      // 4. If the query result is empty, the username does not exist
+      if (data.length === 0) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+      }
+
+      // 5. If a user is found, verify the password
+      const user = data[0];
+      if (user.password !== password) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+      }
+
+      // 6. Login successful, return the response
+      res.status(200).json({
+        message: 'Login successful',
+        user: { id: user.id, username: user.username },
+      });
+    }
+  );
+};
+
+const signUp = (req, res) => {
+  // 1. Get the username and password from the request body
+  const { username, password } = req.body;
+
+  // 2. Validate the input
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: 'Username and password cannot be empty' });
+  }
+
+  // 3. Query the database to check if the username already exists
+  connection.query(
+    'SELECT * FROM users WHERE username = ?',
+    [username],
+    (err, data) => {
+      if (err) {
+        return res.status(500).json({ error: 'Error querying the database' });
+      }
+
+      if (data.length > 0) {
+        return res.status(409).json({ error: 'Username already exists' });
+      }
+
+      // 4. If the username does not exist, insert the new user information into the database
+      const insertQuery =
+        'INSERT INTO users (username, password) VALUES (?, ?)';
+      connection.query(insertQuery, [username, password], (err, data) => {
+        if (err) {
+          return res.status(500).json({ error: 'Registration failed' });
+        }
+
+        // 5. Registration successful, return the response
+        res.status(201).json({ message: 'Registration successful' });
+      });
+    }
+  );
+};
 
 module.exports = {
   author,
@@ -451,6 +540,7 @@ module.exports = {
   max_covid_data,
   density_death_relation,
   vaccination_case_fatality_analysis,
+  login,
+  signUp,
   // add more routes
-
-}
+};
