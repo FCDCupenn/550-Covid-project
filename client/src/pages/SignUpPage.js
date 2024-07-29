@@ -97,7 +97,7 @@ const SignUpPage = () => {
         <Grid container>
           <Grid item>
             <Link href="/login" variant="body2">
-              {'Alreay have an account? Log In'}
+              {'Already have an account? Log In'}
             </Link>
           </Grid>
         </Grid>
