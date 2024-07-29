@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Container, Divider, Link } from '@mui/material';
+import { Button, Checkbox, Container, FormControlLabel, Grid, Slider, TextField,  Divider, Link } from '@mui/material';
+import { formatDuration } from '../helpers/formatter';
+import { DataGrid } from '@mui/x-data-grid';
 import { NavLink } from 'react-router-dom';
 import 'leaflet/dist/leaflet.css';
 
@@ -8,10 +10,13 @@ import LazyTable from '../components/LazyTable';
 // import SongCard from '../components/SongCard';
 const config = require('../config.json');
 
-export default function HomePage() {
+export default function Pharmacy() {
   // We use the setState hook to persist information across renders (such as the result of our API calls)
   // TODO (TASK 13): add a state variable to store the app author (default to '')
-  const [author, setAuthor] = useState("")
+  const [author, setAuthor] = useState("");
+  const [state_name, setStateName] = useState('');
+  const [pageSize, setPageSize] = useState(10);
+  const [data, setData] = useState([]);
 
 
 
@@ -21,17 +26,43 @@ export default function HomePage() {
   // changes from the previous render. In this case, an empty array means the callback
   // will only run on the very first render.
   useEffect(() => {
-    // Fetch request to get the song of the day. Fetch runs asynchronously.
-    // The .then() method is called when the fetch request is complete
-    // and proceeds to convert the result to a JSON which is finally placed in state.
-
-    // TODO (TASK 14): add a fetch call to get the app author (name not pennkey) and store it in the state variable
-    // Hint: note that the app author is a string, not a JSON object. To convert to text, call res.text() instead of res.json()
     fetch(`http://${config.server_host}:${config.server_port}/author/name`)
     .then(res => res.text())
     .then(resText => setAuthor(resText));
 
   }, []);
+
+  // useEffect(() => {
+  //   fetch(`http://${config.server_host}:${config.server_port}/search_pharmacy_info`)
+  //   .then(res => res.json())
+  //   .then(resJson => {
+  //     console.log("Received data:", resJson);
+  //     const pharmacyWithName = resJson.map((pharmacy) => ({ store_name: pharmacy.loc_name, ...pharmacy }));
+  //     console.log("Processed data for setting state:", pharmacyWithName);
+  //     setData(pharmacyWithName);
+
+  //   });
+  // }, [])
+
+  const search = () => {
+    fetch(`http://${config.server_host}:${config.server_port}/search_pharmacy_info?state_name=${state_name}`
+    )
+      .then(res => res.json())
+      .then(resJson => {
+        console.log("Received data:", resJson);
+        const pharmacyWithName = resJson.map((pharmacy) => ({ store_name: pharmacy.loc_name, ...pharmacy }));
+        console.log("Processed data for setting state:", pharmacyWithName);
+        setData(pharmacyWithName);
+      });
+  }
+
+  
+
+  
+
+
+
+
 
   // Here, we define the columns of the "Top Songs" table. The songColumns variable is an array (in order)
   // of objects with each object representing a column. Each object has a "field" property representing
@@ -123,8 +154,30 @@ export default function HomePage() {
       <h2>Fully Vaccination Count</h2>
       <LazyTable route={`http://${config.server_host}:${config.server_port}/fully_vaccination_count`} columns={vaccination_column} defaultPageSize={5} rowsPerPageOptions={[5, 10]} />
       <Divider />
-      {/* TODO (TASK 17): add a paragraph (<p>text</p>) that displays the value of your author state variable from TASK 13 */}
+
+      {/* //slide bar */}
+      <h2>Search Locations</h2>
+      <Grid container spacing={6}>
+        <Grid item xs={8}>
+          <TextField label='enter a state' value={state_name} onChange={(e) => setStateName(e.target.value)} style={{ width: "100%" }}/>
+        </Grid>    
+      </Grid>
+      <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
+        Search
+      </Button>
+      <h2>Results</h2>
+      <DataGrid
+        rows={data}
+        columns={pharmacy_general_info_column}
+        pageSize={pageSize}
+        rowsPerPageOptions={[5, 10, 25]}
+        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
+        autoHeight
+      />
+        
       <p>{author}</p>
+
     </Container>
   );
+
 };

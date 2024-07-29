@@ -64,7 +64,7 @@ export default function HomePage() {
       field: 'total_fully_vaccinated',
       headerName: 'total vaccine count'
     }
-
+  
   ]
 
   return (

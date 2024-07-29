@@ -77,52 +77,6 @@ const author = async function(req, res) {
  * BASIC Covid Related INFO ROUTES *
  ********************************/
 
-// Route 3: GET /pharmacy_store_count/:store_id
-// const pharmacy_store_count = async function(req, res) {
-//   // TODO (TASK 4): implement a route that given a song_id, returns all information about the song
-//   // Hint: unlike route 2, you can directly SELECT * and just return data[0]
-//   // Most of the code is already written for you, you just need to fill in the query
-//   const store_id = req.params.store_id
-
-//   connection.query(`
-//   SELECT state, COUNT(DISTINCT store_id) AS provider_count
-//   FROM Pharmacy
-//   GROUP BY state
-//   ORDER BY COUNT(store_id) DESC;
-  
-//   `, [store_id], (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json({});
-//     } else {
-//       res.json(data[0]);
-//     }
-//   });
-// }
-
-// // Route 4: GET /album/:album_id
-// const fully_vaccination_count = async function(req, res) {
-//   // TODO (TASK 5): implement a route that given a album_id, returns all information about the album
-//   const people_fully_vaccinated = req.params.people_fully_vaccinated
-
-//   connection.query(`
-//   SELECT state_name, MAX(people_fully_vaccinated) AS total_fully_vaccinated
-//   FROM State_Vaccination_Data
-//   WHERE state_name != 'United States'
-//   GROUP BY state_name
-//   ORDER BY MAX(people_fully_vaccinated) DESC;
-  
-//   `, [album_id], (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json({});
-//     } else {
-//       res.json(data[0]);
-//     }
-//   });
-// }
-
-
 const pharmacy_general_info = async function(req, res) {
   // given pharmacy, return all store count by each state
   const page = req.query.page;
@@ -158,6 +112,68 @@ GROUP BY
       // console.log('API Data:', data);
     }
   });
+}
+
+// const search_pharmacy_info = async function(req, res) {
+//     // return all pharmacy info that match the given search query with parameters defaulted to those specified in API spec ordered by loc_name (ascending)
+//     // Some default parameters have been provided for you, but you will need to fill in the rest
+//     const state_name = req.query.state_name ?? '%';
+  
+//     connection.query(`
+//       SELECT loc_name,
+//               city,
+//               state,
+//               GROUP_CONCAT(med_name ORDER BY med_name SEPARATOR '; ') AS med_names,
+//               category,
+//               longitude,
+//               latitude
+//       FROM Pharmacy
+//       WHERE state LIKE '%${state}%' 
+//       GROUP BY
+//               loc_name,
+//               city,
+//               state,
+//               category,
+//               longitude,
+//               latitude
+//   `, (err, data) => {
+//       if (err || data.length === 0) {
+//         console.log(err);
+//         res.json([]);
+//       } else {
+//         res.json(data);
+//       }
+//     });
+  
+//   }
+
+  const search_pharmacy_info = async function(req, res) {
+    const state_name = req.query.state_name ?? '%'; 
+    // Prepare your SQL query using parameter placeholders to prevent SQL injection
+    const sqlQuery = `
+        SELECT loc_name,
+               city,
+               state,
+               GROUP_CONCAT(med_name ORDER BY med_name SEPARATOR '; ') AS med_names,
+               category,
+               longitude,
+               latitude
+        FROM Pharmacy
+        WHERE state LIKE ?
+        GROUP BY loc_name, city, state, category, longitude, latitude
+    `;
+
+    // Execute the query safely by passing the parameters separately
+    connection.query(sqlQuery, [state_name], (err, data) => {
+        if (err) {
+            console.error('Error executing query:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        } else if (data.length === 0) {
+            res.status(404).json([]);  // Send an empty array with a 404 status if no results found
+        } else {
+            res.json(data);  // Send the fetched data if found
+        }
+    });
 }
 
 
@@ -446,6 +462,7 @@ module.exports = {
   author,
   pharmacy_store_count,
   pharmacy_general_info,
+  search_pharmacy_info,
   fully_vaccination_count,
   fully_vaccination_count_date,
   max_covid_data,

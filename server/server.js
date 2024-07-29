@@ -25,6 +25,7 @@ app.get('/author/:type', routes.author);
 
 app.get('/pharmacy', routes.pharmacy_general_info);
 app.get('/pharmacy_store_count', routes.pharmacy_store_count);
+app.get('/search_pharmacy_info', routes.search_pharmacy_info);
 app.get('/fully_vaccination_count', routes.fully_vaccination_count);
 app.get('/state_vaccination_data/:state_name', routes.fully_vaccination_count_date);
 app.get('/max_covid_data', routes.max_covid_data);
