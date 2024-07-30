@@ -27,7 +27,6 @@ app.get('/author/:type', routes.author);
 
 app.get('/pharmacy', routes.pharmacy_general_info);
 app.get('/pharmacy_store_count', routes.pharmacy_store_count);
-app.get('/search_pharmacy_info', routes.search_pharmacy_info);
 app.get('/fully_vaccination_count', routes.fully_vaccination_count);
 app.get(
   '/state_vaccination_data/:state_name',
@@ -38,6 +37,10 @@ app.get('/density_death_relation', routes.density_death_relation);
 app.get(
   '/vaccination_case_fatality_analysis',
   routes.vaccination_case_fatality_analysis
+);
+app.get(
+  '/vaccination_date',
+  routes.vaccination_date
 );
 
 // app.get('/top_songs', routes.top_songs);

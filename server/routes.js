@@ -166,40 +166,7 @@ GROUP BY
   );
 };
 
-
-  const search_pharmacy_info = async function(req, res) {
-    const state_name = req.query.state_name ?? '%'; 
-    // Prepare your SQL query using parameter placeholders to prevent SQL injection
-    const sqlQuery = `
-        SELECT loc_name,
-               city,
-               state,
-               GROUP_CONCAT(med_name ORDER BY med_name SEPARATOR '; ') AS med_names,
-               category,
-               longitude,
-               latitude
-        FROM Pharmacy
-        WHERE state LIKE ?
-        GROUP BY loc_name, city, state, category, longitude, latitude
-    `;
-
-    // Execute the query safely by passing the parameters separately
-    connection.query(sqlQuery, [state_name], (err, data) => {
-        if (err) {
-            console.error('Error executing query:', err);
-            res.status(500).json({ error: 'Internal server error' });
-        } else if (data.length === 0) {
-            res.status(404).json([]);  // Send an empty array with a 404 status if no results found
-        } else {
-            res.json(data);  // Send the fetched data if found
-        }
-    });
-}
-
-
-
-
-const pharmacy_store_count = async function(req, res) {
+const pharmacy_store_count = async function (req, res) {
   // given pharmacy, return all store count by each state
   const page = req.query.page;
   const pageSize = req.query.page_size ?? 10;
@@ -305,6 +272,43 @@ const max_covid_data = async function (req, res) {
   );
 };
 
+const vaccination_date = async function (req, res) {
+  connection.query(
+    `
+  SELECT
+    cvd.country_name,
+    cvd.date AS vaccination_date,
+    cvd.total_vaccinations,
+    cvd.people_vaccinated,
+    cvd.people_fully_vaccinated,
+    cc.date AS case_date,
+    cc.total_cases,
+    cc.total_deaths,
+    ROUND((cc.total_deaths / NULLIF(cc.total_cases, 0)) * 100, 2) AS case_fatality_rate,
+    ROUND((cvd.people_fully_vaccinated / NULLIF(wrp.Population2023, 0)) * 100, 2) AS fully_vaccinated_percentage,
+    ROUND((cvd.total_vaccinations / NULLIF(wrp.Population2023, 0)) * 100, 2) AS vaccination_coverage_percentage
+FROM
+    Country_Vaccination_Data cvd
+JOIN
+    COVID_Case_Country cc ON cvd.country_id = cc.country_id AND cvd.date = cc.date
+JOIN
+    WorldPopulation2023 wrp ON cvd.country_name = wrp.Country
+WHERE
+    cc.total_cases > 10000
+ORDER BY
+    case_fatality_rate DESC;
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+      }
+    }
+  );
+}
+
 const density_death_relation = async function (req, res) {
   connection.query(
     `
@@ -328,37 +332,51 @@ const density_death_relation = async function (req, res) {
 const vaccination_case_fatality_analysis = async function (req, res) {
   connection.query(
     `
-  WITH MaxVaccineDates AS (
-      SELECT country_id, MAX(date) AS max_vaccination_date FROM Country_Vaccination_Data GROUP BY country_id
-  ), MaxCaseDates AS (
-      SELECT country_id, MAX(date) AS max_case_date FROM COVID_Case_Country GROUP BY country_id
-  )
-  SELECT
-      cvd.country_name,
-      cvd.date AS vaccination_date,
-      cvd.total_vaccinations,
-      cvd.people_vaccinated,
-      cvd.people_fully_vaccinated,
-      cc.date AS case_date,
-      cc.total_cases,
-      cc.total_deaths,
-      ROUND((cc.total_deaths / NULLIF(cc.total_cases, 0)) * 100, 2) AS case_fatality_rate,
-      ROUND((cvd.people_fully_vaccinated / NULLIF(wrp.Population2023, 0)) * 100, 2) AS fully_vaccinated_percentage,
-      ROUND((cvd.total_vaccinations / NULLIF(wrp.Population2023, 0)) * 100, 2) AS vaccination_coverage_percentage
-  FROM
-      Country_Vaccination_Data cvd
-  JOIN
-      MaxVaccineDates mvd ON cvd.country_id = mvd.country_id AND cvd.date = mvd.max_vaccination_date
-  JOIN
-      COVID_Case_Country cc ON cvd.country_id = cc.country_id
-  JOIN
-      MaxCaseDates mcd ON cc.country_id = mcd.country_id AND cc.date = mcd.max_case_date
-  JOIN
-      WorldPopulation2023 wrp ON cvd.country_name = wrp.Country
-  WHERE
-      cc.total_cases > 10000
-  ORDER BY
-      case_fatality_rate DESC;
+ WITH Filtered_CVD AS (
+    SELECT
+        country_id,
+        country_name,
+        date AS vaccination_date,
+        total_vaccinations,
+        people_vaccinated,
+        people_fully_vaccinated
+    FROM
+        Country_Vaccination_Data
+    WHERE
+        total_vaccinations > 0
+        AND people_vaccinated > 0
+        AND people_fully_vaccinated > 0
+), Filtered_CC AS (
+    SELECT
+        country_id,
+        date AS case_date,
+        total_cases,
+        total_deaths
+    FROM
+        COVID_Case_Country
+    WHERE
+        total_cases > 10000
+)
+SELECT
+    fcvd.country_name,
+    fcvd.vaccination_date,
+    fcvd.total_vaccinations,
+    fcvd.people_vaccinated,
+    fcvd.people_fully_vaccinated,
+    fcc.case_date,
+    fcc.total_cases,
+    fcc.total_deaths,
+    ROUND((fcc.total_deaths / NULLIF(fcc.total_cases, 0)) * 100, 2) AS case_fatality_rate,
+    ROUND((fcvd.people_fully_vaccinated / NULLIF(wrp.Population2023, 0)) * 100, 2) AS fully_vaccinated_percentage,
+    ROUND((fcvd.total_vaccinations / NULLIF(wrp.Population2023, 0)) * 100, 2) AS vaccination_coverage_percentage
+FROM
+    Filtered_CVD fcvd
+JOIN
+    Filtered_CC fcc ON fcvd.country_id = fcc.country_id AND fcvd.vaccination_date = fcc.case_date
+JOIN
+    WorldPopulation2023 wrp ON fcvd.country_name = wrp.Country
+ORDER BY
+    case_fatality_rate DESC;
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -568,11 +586,11 @@ module.exports = {
   author,
   pharmacy_store_count,
   pharmacy_general_info,
-  search_pharmacy_info,
   fully_vaccination_count,
   fully_vaccination_count_date,
   max_covid_data,
   density_death_relation,
+  vaccination_date,
   vaccination_case_fatality_analysis,
   login,
   signUp,
