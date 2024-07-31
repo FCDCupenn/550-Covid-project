@@ -24,9 +24,11 @@ app.use(express.json());
 // app.get('/search_songs', routes.search_songs);
 
 app.get('/author/:type', routes.author);
-
+// Pharmacy APIs
 app.get('/pharmacy', routes.pharmacy_general_info);
 app.get('/pharmacy_store_count', routes.pharmacy_store_count);
+app.get('/pharmacy_search', routes.pharmacy_search);
+app.get('/pharmacy_selectCity', routes.pharmacy_selectCity);
 app.get('/fully_vaccination_count', routes.fully_vaccination_count);
 app.get(
   '/state_vaccination_data/:state_name',

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, Checkbox, Container, FormControlLabel, Grid, Slider, TextField,  Divider, Link } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { formatDuration } from '../helpers/formatter';
 import { DataGrid } from '@mui/x-data-grid';
 import { NavLink } from 'react-router-dom';
@@ -7,14 +8,20 @@ import 'leaflet/dist/leaflet.css';
 
 
 import LazyTable from '../components/LazyTable';
-// import SongCard from '../components/SongCard';
 const config = require('../config.json');
 
 export default function Pharmacy() {
   // We use the setState hook to persist information across renders (such as the result of our API calls)
   // TODO (TASK 13): add a state variable to store the app author (default to '')
   const [author, setAuthor] = useState("");
+
+  const [selectedState, setSelectedState] = useState('');
   const [state_name, setStateName] = useState('');
+  const [cities, setCities] = useState([]);
+  const [selectedCity, setSelectedCity] = useState('');
+
+
+
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
 
@@ -32,37 +39,59 @@ export default function Pharmacy() {
 
   }, []);
 
+  useEffect(() => {
+    if (state_name) {
+      search_city();
+    } else {
+      setCities([]);
+    }
+  }, [state_name]);
+
   // useEffect(() => {
-  //   fetch(`http://${config.server_host}:${config.server_port}/search_pharmacy_info`)
+
+  //     fetch(`http://${config.server_host}:${config.server_port}/pharmacy_selectCity?state_name=${state_name}`)
+  //     .then(res => res.json())
+  //     .then(resJson => setCities(resJson));
+      
+  //   },[state_name]);
+
+
+
+  // useEffect(() => {
+  //   fetch(`http://${config.server_host}:${config.server_port}/pharmacy_search`)
   //   .then(res => res.json())
   //   .then(resJson => {
   //     console.log("Received data:", resJson);
-  //     const pharmacyWithName = resJson.map((pharmacy) => ({ store_name: pharmacy.loc_name, ...pharmacy }));
-  //     console.log("Processed data for setting state:", pharmacyWithName);
-  //     setData(pharmacyWithName);
+  //     const pharmacyWithID = resJson.map((pharmacy) => ({id: pharmacy.store_id, ...pharmacy }));
+  //     console.log("Processed data for setting state:", pharmacyWithID);
+  //     setData(pharmacyWithID);
 
   //   });
   // }, [])
 
   const search = () => {
-    fetch(`http://${config.server_host}:${config.server_port}/search_pharmacy_info?state_name=${state_name}`
+    fetch(`http://${config.server_host}:${config.server_port}/pharmacy_search?state_name=${state_name}`
     )
       .then(res => res.json())
       .then(resJson => {
         console.log("Received data:", resJson);
-        const pharmacyWithName = resJson.map((pharmacy) => ({ store_name: pharmacy.loc_name, ...pharmacy }));
-        console.log("Processed data for setting state:", pharmacyWithName);
-        setData(pharmacyWithName);
+        const pharmacyWithID = resJson.map((pharmacy) => ({id: pharmacy.store_id, ...pharmacy }));
+        console.log("Processed data for setting state:", pharmacyWithID);
+        setData(pharmacyWithID);
       });
+  }
+
+  const search_city = () => {
+ 
+    fetch(`http://${config.server_host}:${config.server_port}/pharmacy_selectCity?state_name=${state_name}`)
+    .then(res => res.json())
+    .then(resJson => setCities(resJson.map(city => city.city)));
+    
   }
 
   
 
   
-
-
-
-
 
   // Here, we define the columns of the "Top Songs" table. The songColumns variable is an array (in order)
   // of objects with each object representing a column. Each object has a "field" property representing
@@ -138,12 +167,6 @@ export default function Pharmacy() {
 
   return (
     <Container>
-      {/* SongCard is a custom component that we made. selectedSongId && <SongCard .../> makes use of short-circuit logic to only render the SongCard if a non-null song is selected */}
-      {/* {selectedSongId && <SongCard songId={selectedSongId} handleClose={() => setSelectedSongId(null)} />}
-      <h2>Check out your song of the day:&nbsp;
-        <Link onClick={() => setSelectedSongId(songOfTheDay.song_id)}>{songOfTheDay.title}</Link>
-      </h2>
-      <Divider /> */}
       <h2>Pharmacy Provider General Info</h2>
       <LazyTable route={`http://${config.server_host}:${config.server_port}/pharmacy`} columns={pharmacy_general_info_column} />
       <Divider />
@@ -165,6 +188,45 @@ export default function Pharmacy() {
       <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
         Search
       </Button>
+      
+      {/* dropdown manual */}   
+        <div>
+        {/* <FormControl fullWidth>
+          <InputLabel id="state-select-label">State</InputLabel>
+          <Select
+            labelId="state-select-label"
+            id="state-select"
+            value={selectedState}
+            label="State"
+            onChange={e => setSelectedState(e.target.value)}
+          >
+            {states.map(state => (
+              <MenuItem key={state} value={state}>{state}</MenuItem>
+            ))}
+          </Select>
+        </FormControl> */}
+
+        <FormControl fullWidth style={{width: '200px'}} disabled={!cities.length}>
+          <InputLabel id="city-select-label">City</InputLabel>
+          <Select
+            labelId="city-select-label"
+            id="city-select"
+            value={selectedCity}
+            label="City"
+            onChange={e => setSelectedCity(e.target.value)}
+            size="small"
+          >
+            {cities.map((city, index) => (
+              // <MenuItem key={city} value={city}>{city}</MenuItem>
+              <MenuItem key={index} value={city} sx={{ fontSize: '0.875rem', padding: '6px 10px' }}>
+                {city}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        </div>
+
+
       <h2>Results</h2>
       <DataGrid
         rows={data}
@@ -173,11 +235,15 @@ export default function Pharmacy() {
         rowsPerPageOptions={[5, 10, 25]}
         onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
         autoHeight
+        getRowId={(row) => row.store_id}
       />
+
+      
         
       <p>{author}</p>
 
     </Container>
+    
   );
 
 };

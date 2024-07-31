@@ -166,6 +166,118 @@ GROUP BY
   );
 };
 
+const pharmacy_selectCity = async function (req, res) {
+  // given a state, return all the cities from that state
+  const state = req.query.state_name ?? '%';
+
+  connection.query(
+    `
+  SELECT DISTINCT city
+  FROM Pharmacy
+  WHERE state LIKE '%${state}%'
+  ORDER BY CITY;
+    
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+        console.log('Cities are:', data);
+      }
+    }
+  );
+};
+
+const pharmacy_search = async function (req, res) {
+
+  const state = req.query.state_name ?? '%';
+  const city = req.query.city ?? '%';
+  const longitude_low = req.query.longitude_low ?? -177;
+  const longitude_high = req.query.longitude_high ?? 146;
+  const latitude_low = req.query.latitude_low ?? 13;
+  const latitude_high = req.query.latitude_high ?? 72;
+
+  connection.query(
+    `
+    SELECT
+        store_id,
+        loc_name,
+        city,
+        state,
+        GROUP_CONCAT(med_name ORDER BY med_name SEPARATOR '; ') AS med_names,
+        category,
+        longitude,
+        latitude
+    FROM
+        Pharmacy
+    WHERE
+        state LIKE '%${state}%'
+    GROUP BY
+        store_id,
+        loc_name,
+        city,
+        state,
+        category,
+        longitude,
+        latitude
+    `,
+    (err, data) => {
+          if (err || data.length === 0) {
+            console.log(err);
+            res.json([]);
+          } else {
+            // console.log("check", state);
+            // console.log("check", data);
+            res.json(data);
+          }
+        });
+};
+
+
+// // Route 9: GET /search_albums
+// const search_songs = async function(req, res) {
+//   // TODO (TASK 12): return all songs that match the given search query with parameters defaulted to those specified in API spec ordered by title (ascending)
+//   // Some default parameters have been provided for you, but you will need to fill in the rest
+//   const title = req.query.title ?? '%';
+//   const durationLow = req.query.duration_low ?? 60;
+//   const durationHigh = req.query.duration_high ?? 660;
+//   const playsLow = req.query.plays_low ?? 0;
+//   const playsHigh = req.query.plays_high ?? 1100000000;
+//   const energyLow = req.query.energy_low ?? 0;
+//   const energyHigh = req.query.energy_high ?? 1;
+//   const danceabilityLow = req.query.danceability_low ?? 0;
+//   const danceabilityHigh = req.query.danceability_high ?? 1;
+//   const valenceLow = req.query.valence_low ?? 0;
+//   const valenceHigh = req.query.valence_high ?? 1;
+//   const explicit = req.query.explicit === 'true' ? 1 : 0;
+
+//   connection.query(`
+//     SELECT *
+//     FROM Songs
+//     WHERE title LIKE '%${title}%' AND
+//           duration BETWEEN ${durationLow} AND ${durationHigh} AND
+//           plays BETWEEN ${playsLow} AND ${playsHigh} AND
+//           energy BETWEEN ${energyLow} AND ${energyHigh} AND
+//           danceability BETWEEN ${danceabilityLow} AND ${danceabilityHigh} AND
+//           valence BETWEEN ${valenceLow} AND ${valenceHigh} AND
+//           explicit <= ${explicit}
+//     ORDER BY title ASC
+// `, (err, data) => {
+//     if (err || data.length === 0) {
+//       console.log(err);
+//       res.json([]);
+//     } else {
+//       res.json(data);
+//     }
+//   });
+
+// }
+
+
+
+
 const pharmacy_store_count = async function (req, res) {
   // given pharmacy, return all store count by each state
   const page = req.query.page;
@@ -586,6 +698,8 @@ module.exports = {
   author,
   pharmacy_store_count,
   pharmacy_general_info,
+  pharmacy_search,
+  pharmacy_selectCity,
   fully_vaccination_count,
   fully_vaccination_count_date,
   max_covid_data,
