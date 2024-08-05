@@ -19,6 +19,8 @@ export default function Pharmacy() {
   const [state_name, setStateName] = useState('');
   const [cities, setCities] = useState([]);
   const [selectedCity, setSelectedCity] = useState('');
+  const [longitude, setLongitude] = useState([-177, 146]);
+  const [latitude, setLatitude] = useState([13, 72]);
 
 
 
@@ -41,6 +43,8 @@ export default function Pharmacy() {
 
   useEffect(() => {
     if (state_name) {
+      // setSelectedCity('');
+      setCities([]);
       search_city();
     } else {
       setCities([]);
@@ -70,11 +74,17 @@ export default function Pharmacy() {
   // }, [])
 
   const search = () => {
-    fetch(`http://${config.server_host}:${config.server_port}/pharmacy_search?state_name=${state_name}`
+    fetch(`http://${config.server_host}:${config.server_port}/pharmacy_search?state_name=${state_name}` + 
+       `&city_name=${selectedCity}` +
+       `&longitude_low=${longitude[0]}&longitude_high=${longitude[1]}` + 
+       `&latitude_low=${latitude[0]}&latitude_high=${latitude[1]}` 
     )
       .then(res => res.json())
       .then(resJson => {
         console.log("Received data:", resJson);
+        console.log("city is: ", selectedCity);
+        console.log("longitude is: ", longitude[0]);
+        console.log("latitude is: ", latitude[0]);
         const pharmacyWithID = resJson.map((pharmacy) => ({id: pharmacy.store_id, ...pharmacy }));
         console.log("Processed data for setting state:", pharmacyWithID);
         setData(pharmacyWithID);
@@ -83,7 +93,9 @@ export default function Pharmacy() {
 
   const search_city = () => {
  
-    fetch(`http://${config.server_host}:${config.server_port}/pharmacy_selectCity?state_name=${state_name}`)
+    fetch(`http://${config.server_host}:${config.server_port}/pharmacy_selectCity?state_name=${state_name}`
+     
+    )
     .then(res => res.json())
     .then(resJson => setCities(resJson.map(city => city.city)));
     
@@ -185,9 +197,6 @@ export default function Pharmacy() {
           <TextField label='enter a state' value={state_name} onChange={(e) => setStateName(e.target.value)} style={{ width: "100%" }}/>
         </Grid>    
       </Grid>
-      <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
-        Search
-      </Button>
       
       {/* dropdown manual */}   
         <div>
@@ -225,6 +234,66 @@ export default function Pharmacy() {
           </Select>
         </FormControl>
         </div>
+
+        <Grid item xs={3}>
+          <p>Longitude</p>
+          <Slider
+            value={longitude}
+            onChange={(e, newValue) => setLongitude(newValue)}
+            valueLabelDisplay='auto'
+            min={-177}
+            max={146}
+            step={10}
+            sx={{
+              width: 300, // Adjust the width of the slider
+              '& .MuiSlider-thumb': {
+                height: 24, // Height of the thumb
+                width: 24, // Width of the thumb
+                backgroundColor: '#f50057', // Change thumb color
+              },
+              '& .MuiSlider-track': {
+                height: 8, // Height of the track
+                backgroundColor: '#f50057', // Change track color
+              },
+              '& .MuiSlider-rail': {
+                height: 8, // Height of the rail (part of the track that is not filled)
+                backgroundColor: 'grey', // Change rail color
+              }
+            }}   
+          />
+        </Grid>
+
+        <Grid item xs={3}>
+          <p>latitude</p>
+          <Slider
+            value={latitude}
+            onChange={(e, newValue) => setLatitude(newValue)}
+            valueLabelDisplay='auto'
+            min={13}
+            max={72}
+            step={10}
+            sx={{
+              width: 300, // Adjust the width of the slider
+              '& .MuiSlider-thumb': {
+                height: 24, // Height of the thumb
+                width: 24, // Width of the thumb
+                backgroundColor: '#f50057', // Change thumb color
+              },
+              '& .MuiSlider-track': {
+                height: 8, // Height of the track
+                backgroundColor: '#f50057', // Change track color
+              },
+              '& .MuiSlider-rail': {
+                height: 8, // Height of the rail (part of the track that is not filled)
+                backgroundColor: 'grey', // Change rail color
+              }
+            }}     
+          />
+        </Grid>
+
+      <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
+        Search
+      </Button>
 
 
       <h2>Results</h2>

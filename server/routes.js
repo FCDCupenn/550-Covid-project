@@ -193,7 +193,7 @@ const pharmacy_selectCity = async function (req, res) {
 const pharmacy_search = async function (req, res) {
 
   const state = req.query.state_name ?? '%';
-  const city = req.query.city ?? '%';
+  const city = req.query.city_name ?? '%';
   const longitude_low = req.query.longitude_low ?? -177;
   const longitude_high = req.query.longitude_high ?? 146;
   const latitude_low = req.query.latitude_low ?? 13;
@@ -213,7 +213,9 @@ const pharmacy_search = async function (req, res) {
     FROM
         Pharmacy
     WHERE
-        state LIKE '%${state}%'
+        state LIKE '%${state}%' AND city LIKE '%${city}%' AND
+        longitude BETWEEN ${longitude_low} AND ${longitude_high} AND
+        latitude BETWEEN ${latitude_low} AND ${latitude_high}
     GROUP BY
         store_id,
         loc_name,
@@ -228,8 +230,10 @@ const pharmacy_search = async function (req, res) {
             console.log(err);
             res.json([]);
           } else {
-            // console.log("check", state);
-            // console.log("check", data);
+            console.log("state is ", state);
+            console.log("city is ", city);
+            console.log("latitude_low is ", latitude_low);
+            console.log("longitude_low is ", longitude_low);
             res.json(data);
           }
         });
