@@ -33,11 +33,6 @@ const MapComponent = ({ data }) => {
     <h2 style={{ margin: '0 0 10px 0' }}>TOTAL DEATHS</h2>
     <p style={{ fontSize: '30px', margin: '0', color: 'red' }}>{totalDeaths.toLocaleString()}</p>
   </div>
-  <Divider orientation="vertical" flexItem style={{ margin: '0 20px' }} />
-  <div style={{ textAlign: 'center' }}>
-    <h2 style={{ margin: '0 0 10px 0' }}>TOTAL RECOVERED</h2>
-    <p style={{ fontSize: '30px', margin: '0' }}>xxxxx</p>
-  </div>
 </div>
 
 

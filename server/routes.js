@@ -519,10 +519,17 @@ const country_covid_data_with_position = async function (req, res) {
 
 }
 
-const state_covid_data_with_position = async function (req, res) {
+const state_covid_data = async function (req, res) {
   connection.query(
-      `SELECT state, total_cases, total_deaths, geo_point_2d 
-       FROM State_Case_WithGeo`,  // 假设你的表名为 CovidData，并且 Europe 不是一个州的名称
+      `SELECT a.state, a.date, a.cases, a.deaths
+FROM States_FipCaseDeath a
+INNER JOIN (
+    SELECT state, MAX(date) AS MaxDate
+    FROM States_FipCaseDeath
+    GROUP BY state
+) b ON a.state = b.state AND a.date = b.MaxDate
+ORDER BY a.state;
+`,  
       (err, data) => {
           if (err || data.length === 0) {
               console.error(err);
@@ -535,119 +542,6 @@ const state_covid_data_with_position = async function (req, res) {
 }
 
 
-/************************
- * ADVANCED INFO ROUTES *
- ************************/
-
-// // Route 7: GET /top_songs
-// const top_songs = async function(req, res) {
-//   const page = req.query.page;
-//   // TODO (TASK 8): use the ternary (or nullish) operator to set the pageSize based on the query or default to 10
-//   const pageSize = req.query.page_size ?? 10;
-
-//   if (!page) {
-//     // TODO (TASK 9)): query the database and return all songs ordered by number of plays (descending)
-//     // Hint: you will need to use a JOIN to get the album title as well
-//       connection.query(`
-//       SELECT s.song_id, s.title, s.album_id, a.title AS album, s.plays
-//       FROM Songs s
-//       JOIN Albums a on s.album_id = a.album_id
-//       ORDER BY plays DESC
-
-//     `, (err, data) => {
-//         if (err || data.length === 0) {
-//           console.log(err);
-//           res.json([]);
-//         } else {
-//           res.json(data);
-//         }
-//       });
-//   } else {
-//     // TODO (TASK 10): reimplement TASK 9 with pagination
-//     // Hint: use LIMIT and OFFSET (see https://www.w3schools.com/php/php_mysql_select_limit.asp)
-//     const offset = (page-1) * pageSize;
-//     connection.query(`
-//     SELECT s.song_id, s.title, s.album_id, a.title AS album, s.plays
-//     FROM Songs s
-//     JOIN Albums a on s.album_id = a.album_id
-//     ORDER BY plays DESC
-//     LIMIT ${pageSize} OFFSET ${offset}`,
-//     (err, data) => {
-//       if (err || data.length === 0) {
-//         console.log(err);
-//         res.json([]);
-//       } else {
-//         res.json(data);
-//       }
-//     });
-//   }
-// }
-
-// // Route 8: GET /top_albums
-// const top_albums = async function(req, res) {
-//   // TODO (TASK 11): return the top albums ordered by aggregate number of plays of all songs on the album (descending), with optional pagination (as in route 7)
-//   // Hint: you will need to use a JOIN and aggregation to get the total plays of songs in an album
-//   const page = req.query.page;
-//   // TODO (TASK 8): use the ternary (or nullish) operator to set the pageSize based on the query or default to 10
-//   const pageSize = req.query.page_size ?? 10;
-//   const offset = page ? (page - 1) * pageSize : 0;
-
-//   connection.query(`
-//     SELECT a.album_id, a.title, SUM(s.plays) AS plays
-//     FROM Albums a
-//     JOIN Songs s ON a.album_id = s.album_id
-//     GROUP BY a.album_id, a.title
-//     ORDER BY plays DESC
-//     ${page ? `LIMIT ${pageSize} OFFSET ${offset}` : ""}
-
-// `, (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json({});
-//     } else {
-//       res.json(data);
-//     }
-//   });
-// }
-
-// // Route 9: GET /search_albums
-// const search_songs = async function(req, res) {
-//   // TODO (TASK 12): return all songs that match the given search query with parameters defaulted to those specified in API spec ordered by title (ascending)
-//   // Some default parameters have been provided for you, but you will need to fill in the rest
-//   const title = req.query.title ?? '%';
-//   const durationLow = req.query.duration_low ?? 60;
-//   const durationHigh = req.query.duration_high ?? 660;
-//   const playsLow = req.query.plays_low ?? 0;
-//   const playsHigh = req.query.plays_high ?? 1100000000;
-//   const energyLow = req.query.energy_low ?? 0;
-//   const energyHigh = req.query.energy_high ?? 1;
-//   const danceabilityLow = req.query.danceability_low ?? 0;
-//   const danceabilityHigh = req.query.danceability_high ?? 1;
-//   const valenceLow = req.query.valence_low ?? 0;
-//   const valenceHigh = req.query.valence_high ?? 1;
-//   const explicit = req.query.explicit === 'true' ? 1 : 0;
-
-//   connection.query(`
-//     SELECT *
-//     FROM Songs
-//     WHERE title LIKE '%${title}%' AND
-//           duration BETWEEN ${durationLow} AND ${durationHigh} AND
-//           plays BETWEEN ${playsLow} AND ${playsHigh} AND
-//           energy BETWEEN ${energyLow} AND ${energyHigh} AND
-//           danceability BETWEEN ${danceabilityLow} AND ${danceabilityHigh} AND
-//           valence BETWEEN ${valenceLow} AND ${valenceHigh} AND
-//           explicit <= ${explicit}
-//     ORDER BY title ASC
-// `, (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json([]);
-//     } else {
-//       res.json(data);
-//     }
-//   });
-
-// }
 
 const login = (req, res) => {
   // 1. Get the username and password from the request body
@@ -743,6 +637,6 @@ module.exports = {
   login,
   signUp,
   country_covid_data_with_position,
-  state_covid_data_with_position,
+  state_covid_data,
   // add more routes
 };

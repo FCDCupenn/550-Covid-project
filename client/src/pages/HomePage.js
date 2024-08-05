@@ -1,6 +1,7 @@
 import React , { useState, useEffect }from 'react';
 import { Container, Box, Grid, Card, CardContent, CardActions, Button } from '@mui/material';
 import MapComponent from '../components/MapComponent';
+import Footer from '../components/Footer';
 
 const config = require('../config.json');
 
@@ -22,34 +23,35 @@ export default function HomePage() {
 
   const infoCards = [
     {
-      title: 'Masks',
-      description: 'Wearing a mask is advisable if the risk level in your community is high, you have recently been in contact with someone with COVID, or a healthcare professional has recommended it based on your personal risk factors.',
-      buttonText: 'Get tips on masking',
-      link: '#',
-      icon: '😷'
-    },
-    {
-      title: 'Testing',
-      description: 'It’s crucial to get tested if you exhibit symptoms or have been exposed to COVID. The Test to Treat initiative ensures high-risk individuals receive immediate antiviral treatment upon testing positive.',
-      buttonText: 'Order free at-home tests',
-      link: '#',
-      icon: '🧪'
+      title: 'Go See US Data',
+      description: 'Stay updated with the latest COVID-19 statistics and trends in the United States. Regularly check the data to understand the current situation and make informed decisions.',
+      buttonText: 'View US Data',
+      link: '/covid-data',  // 请将 '#' 替换为实际的链接
+      icon: '📊'
     },
     {
       title: 'Vaccines',
       description: 'Vaccinations are now available for children aged 6 months and older. Getting vaccinated can help protect against infection, severe illness, and death caused by COVID.',
       buttonText: 'Find a vaccine',
-      link: 'vaccination',
+      link: '/pharmacy',
       icon: '💉'
     },
     {
       title: 'Booster shots',
       description: 'Booster shots provide essential protection against COVID variants, reducing the risk of infection and severe illness. The updated 2023/2024 booster offers enhanced protection.',
       buttonText: 'Find a booster',
-      link: 'vaccination',
+      link: '/pharmacy',
       icon: '💉'
+    },
+    {
+      title: 'Register with Us',
+      description: 'Stay connected and receive the latest updates and information about COVID-19. Register with us to get personalized alerts and resources to keep you and your community safe.',
+      buttonText: 'Register now',
+      link: '/login',  // 请将 '#' 替换为实际的链接
+      icon: '📝'
     }
   ];
+  
 
   return (
     <Container maxWidth="lg">
@@ -80,6 +82,7 @@ export default function HomePage() {
           ))}
         </Grid>
       </Box>
+      <Footer />
     </Container>
   );
 }

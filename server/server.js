@@ -45,7 +45,7 @@ app.get(
   routes.vaccination_date
 );
 app.get('/covid-country-data', routes.country_covid_data_with_position);
-app.get('/covid-state-data', routes.state_covid_data_with_position);
+app.get('/covid-data', routes.state_covid_data);
 
 // app.get('/top_songs', routes.top_songs);
 // app.get('/top_albums', routes.top_albums);
