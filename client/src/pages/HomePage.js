@@ -1,16 +1,24 @@
-import React from 'react';
+import React , { useState, useEffect }from 'react';
 import { Container, Box, Grid, Card, CardContent, CardActions, Button } from '@mui/material';
 import MapComponent from '../components/MapComponent';
 
+const config = require('../config.json');
 
 export default function HomePage() {
-  const testData = [
-    { "country": "United States", "lat": 37.0902, "long": -95.7129, "cases": 50000000, "deaths": 800000 },
-    { "country": "Brazil", "lat": -14.2350, "long": -51.9253, "cases": 22000000, "deaths": 610000 },
-    { "country": "India", "lat": 20.5937, "long": 78.9629, "cases": 34000000, "deaths": 450000 },
-    { "country": "France", "lat": 46.2276, "long": 2.2137, "cases": 7000000, "deaths": 110000 },
-    { "country": "United Kingdom", "lat": 55.3781, "long": -3.4360, "cases": 10000000, "deaths": 130000 }
-  ];
+  // 设置状态来存储从 API 获取的数据
+  const [covidData, setCovidData] = useState([]);
+
+  // 当组件加载时，发起 API 请求
+  useEffect(() => {
+    fetch(`http://${config.server_host}:${config.server_port}/covid-country-data`) // 确保这个 URL 是你的 API 端点
+      .then(response => response.json())
+      .then(data => {
+        setCovidData(data);  // 更新状态
+      })
+      .catch(error => {
+        console.error('Error fetching covid data:', error);
+      });
+  }, []); // 空数组确保只在组件加载时执行
 
   const infoCards = [
     {
@@ -31,14 +39,14 @@ export default function HomePage() {
       title: 'Vaccines',
       description: 'Vaccinations are now available for children aged 6 months and older. Getting vaccinated can help protect against infection, severe illness, and death caused by COVID.',
       buttonText: 'Find a vaccine',
-      link: '#',
+      link: 'vaccination',
       icon: '💉'
     },
     {
       title: 'Booster shots',
       description: 'Booster shots provide essential protection against COVID variants, reducing the risk of infection and severe illness. The updated 2023/2024 booster offers enhanced protection.',
       buttonText: 'Find a booster',
-      link: '#',
+      link: 'vaccination',
       icon: '💉'
     }
   ];
@@ -50,7 +58,7 @@ export default function HomePage() {
         <p className="subtitle">Last updated on July 25, 2024</p>
       </div>
       <Box sx={{ marginTop: 3 }}>
-        <MapComponent data={testData} />
+        <MapComponent data={covidData} />
       </Box>
       <Box sx={{ marginTop: 5 }}>
         <h2 className="recommendation-title">Recommendations</h2>

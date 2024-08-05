@@ -501,6 +501,40 @@ ORDER BY
   );
 };
 
+
+
+const country_covid_data_with_position = async function (req, res) {
+  connection.query(
+
+    `SELECT * FROM Country_Case_LatLong WHERE Country != "Europe";
+`, (err, data) => {
+  if (err || data.length === 0) {
+    console.log(err);
+    res.json({});
+  } else {
+    res.json(data);
+  }
+}
+);
+
+}
+
+const state_covid_data_with_position = async function (req, res) {
+  connection.query(
+      `SELECT state, total_cases, total_deaths, geo_point_2d 
+       FROM State_Case_WithGeo`,  // 假设你的表名为 CovidData，并且 Europe 不是一个州的名称
+      (err, data) => {
+          if (err || data.length === 0) {
+              console.error(err);
+              res.status(500).json({error: 'Internal server error'});
+          } else {
+              res.json(data);
+          }
+      }
+  );
+}
+
+
 /************************
  * ADVANCED INFO ROUTES *
  ************************/
@@ -708,5 +742,7 @@ module.exports = {
   vaccination_case_fatality_analysis,
   login,
   signUp,
+  country_covid_data_with_position,
+  state_covid_data_with_position,
   // add more routes
 };

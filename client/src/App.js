@@ -9,6 +9,7 @@ import SignUpPage from './pages/SignUpPage';
 import VaccinationDataPage from './pages/VaccinationDataPage';
 
 import { Toaster } from 'react-hot-toast';
+import CovidDataPage from './pages/CovidDataPage';
 
 // App is the root component of our application
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/vaccination" element={<VaccinationDataPage />} />
+        <Route path="/covid-data" element={<CovidDataPage />} />
       </Routes>
       <Toaster />
     </BrowserRouter>
