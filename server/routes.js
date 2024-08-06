@@ -388,42 +388,7 @@ const max_covid_data = async function (req, res) {
   );
 };
 
-const vaccination_date = async function (req, res) {
-  connection.query(
-    `
-  SELECT
-    cvd.country_name,
-    cvd.date AS vaccination_date,
-    cvd.total_vaccinations,
-    cvd.people_vaccinated,
-    cvd.people_fully_vaccinated,
-    cc.date AS case_date,
-    cc.total_cases,
-    cc.total_deaths,
-    ROUND((cc.total_deaths / NULLIF(cc.total_cases, 0)) * 100, 2) AS case_fatality_rate,
-    ROUND((cvd.people_fully_vaccinated / NULLIF(wrp.Population2023, 0)) * 100, 2) AS fully_vaccinated_percentage,
-    ROUND((cvd.total_vaccinations / NULLIF(wrp.Population2023, 0)) * 100, 2) AS vaccination_coverage_percentage
-FROM
-    Country_Vaccination_Data cvd
-JOIN
-    COVID_Case_Country cc ON cvd.country_id = cc.country_id AND cvd.date = cc.date
-JOIN
-    WorldPopulation2023 wrp ON cvd.country_name = wrp.Country
-WHERE
-    cc.total_cases > 10000
-ORDER BY
-    case_fatality_rate DESC;
-  `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json({});
-      } else {
-        res.json(data);
-      }
-    }
-  );
-}
+
 
 const density_death_relation = async function (req, res) {
   connection.query(
@@ -445,55 +410,96 @@ const density_death_relation = async function (req, res) {
   );
 };
 
+const vaccination_date = async function (req, res) {
+  connection.query(
+    `
+    SELECT
+      c.country_name,
+      cvd.date AS vaccination_date,
+      cvd.total_vaccinations,
+      cvd.people_vaccinated,
+      cvd.people_fully_vaccinated,
+      cc.date AS case_date,
+      cc.total_cases,
+      cc.total_deaths,
+      ROUND((cc.total_deaths / NULLIF(cc.total_cases, 0)) * 100, 2) AS case_fatality_rate,
+      ROUND((cvd.people_fully_vaccinated / NULLIF(wp.Population2023, 0)) * 100, 2) AS fully_vaccinated_percentage,
+      ROUND((cvd.total_vaccinations / NULLIF(wp.Population2023, 0)) * 100, 2) AS vaccination_coverage_percentage
+    FROM
+      Country_Vaccination_Data cvd
+    JOIN
+      COVID_Case_Country cc ON cvd.country_id = cc.country_id AND cvd.date = cc.date
+    JOIN
+      Country c ON cvd.country_id = c.country_id
+    JOIN
+      WorldPopulation2023 wp ON c.country_name = wp.Country
+    WHERE
+      cc.total_cases > 10000
+    ORDER BY
+      case_fatality_rate DESC;
+    `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+      }
+    }
+  );
+}
+
 const vaccination_case_fatality_analysis = async function (req, res) {
   connection.query(
     `
- WITH Filtered_CVD AS (
-    SELECT
-        country_id,
-        country_name,
-        date AS vaccination_date,
-        total_vaccinations,
-        people_vaccinated,
-        people_fully_vaccinated
-    FROM
-        Country_Vaccination_Data
-    WHERE
-        total_vaccinations > 0
-        AND people_vaccinated > 0
-        AND people_fully_vaccinated > 0
-), Filtered_CC AS (
-    SELECT
+    WITH Filtered_CVD AS (
+      SELECT
+        cvd.country_id,
+        c.country_name,
+        cvd.date AS vaccination_date,
+        cvd.total_vaccinations,
+        cvd.people_vaccinated,
+        cvd.people_fully_vaccinated
+      FROM
+        Country_Vaccination_Data cvd
+      JOIN
+        Country c ON cvd.country_id = c.country_id
+      WHERE
+        cvd.total_vaccinations > 0
+        AND cvd.people_vaccinated > 0
+        AND cvd.people_fully_vaccinated > 0
+    ), Filtered_CC AS (
+      SELECT
         country_id,
         date AS case_date,
         total_cases,
         total_deaths
-    FROM
+      FROM
         COVID_Case_Country
-    WHERE
+      WHERE
         total_cases > 10000
-)
-SELECT
-    fcvd.country_name,
-    fcvd.vaccination_date,
-    fcvd.total_vaccinations,
-    fcvd.people_vaccinated,
-    fcvd.people_fully_vaccinated,
-    fcc.case_date,
-    fcc.total_cases,
-    fcc.total_deaths,
-    ROUND((fcc.total_deaths / NULLIF(fcc.total_cases, 0)) * 100, 2) AS case_fatality_rate,
-    ROUND((fcvd.people_fully_vaccinated / NULLIF(wrp.Population2023, 0)) * 100, 2) AS fully_vaccinated_percentage,
-    ROUND((fcvd.total_vaccinations / NULLIF(wrp.Population2023, 0)) * 100, 2) AS vaccination_coverage_percentage
-FROM
-    Filtered_CVD fcvd
-JOIN
-    Filtered_CC fcc ON fcvd.country_id = fcc.country_id AND fcvd.vaccination_date = fcc.case_date
-JOIN
-    WorldPopulation2023 wrp ON fcvd.country_name = wrp.Country
-ORDER BY
-    case_fatality_rate DESC;
-  `,
+    )
+    SELECT
+      fcvd.country_name,
+      fcvd.vaccination_date,
+      fcvd.total_vaccinations,
+      fcvd.people_vaccinated,
+      fcvd.people_fully_vaccinated,
+      fcc.case_date,
+      fcc.total_cases,
+      fcc.total_deaths,
+      ROUND((fcc.total_deaths / NULLIF(fcc.total_cases, 0)) * 100, 2) AS case_fatality_rate,
+      ROUND((fcvd.people_fully_vaccinated / NULLIF(wp.Population2023, 0)) * 100, 2) AS fully_vaccinated_percentage,
+      ROUND((fcvd.total_vaccinations / NULLIF(wp.Population2023, 0)) * 100, 2) AS vaccination_coverage_percentage
+    FROM
+      Filtered_CVD fcvd
+    JOIN
+      Filtered_CC fcc ON fcvd.country_id = fcc.country_id AND fcvd.vaccination_date = fcc.case_date
+    JOIN
+      WorldPopulation2023 wp ON fcvd.country_name = wp.Country
+    ORDER BY
+      case_fatality_rate DESC;
+    `,
     (err, data) => {
       if (err || data.length === 0) {
         console.log(err);

@@ -49,12 +49,12 @@ export default function NavBar() {
         <Toolbar disableGutters style={{ height: '64px', display: 'flex', alignItems: 'center' }}>
           <Box sx={{ flexGrow: 1, display: 'flex', height: '100%' }}>
             <NavText href="/" IconComponent={HomeIcon} />
-            <NavText href="/pharmacy" text="pharmacy" />
+            <NavText href="/pharmacy" text="Pharmacy" />
             <NavText href="/covid-data" text="COVID Data" />
-            <NavText href="/vaccination" text="vaccination" />
+            <NavText href="/vaccination" text="Vaccination Data" />
           </Box>
           <Box sx={{ flexGrow: 0, display: 'flex', height: '100%' }}>
-            <NavText href="/login" text="login" />
+            <NavText href="/login" text="Login" />
           </Box>
         </Toolbar>
       </Container>
