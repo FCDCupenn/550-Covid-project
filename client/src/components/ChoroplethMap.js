@@ -2,20 +2,24 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { statesData } from './us-states'; // 确保路径是正确的
+import { statesData } from './us-states'; 
 const config = require('../config.json');
 
 function ChoroplethMap({ onDataLoaded }) {
-  const [covidData, setCovidData] = useState([]);
+  const [covidData, setCovidData] = useState({});
   const infoRef = useRef(null);
+  const [currentInfo, setCurrentInfo] = useState(null); // 用于存储当前显示的信息
 
   useEffect(() => {
     fetch(`http://${config.server_host}:${config.server_port}/covid-data`)
       .then(response => response.json())
       .then(data => {
-        console.log(data); // 查看数据结构
-        setCovidData(data); // 存储从API获取的COVID数据
-        // 计算总病例数和总死亡数
+        // 创建映射表
+        const dataMap = data.reduce((acc, item) => {
+          acc[item.state] = item;
+          return acc;
+        }, {});
+        setCovidData(dataMap); // 存储为映射表形式
         const totalCases = data.reduce((sum, state) => sum + state.cases, 0);
         const totalDeaths = data.reduce((sum, state) => sum + state.deaths, 0);
         onDataLoaded({ totalCases, totalDeaths });
@@ -31,13 +35,12 @@ function ChoroplethMap({ onDataLoaded }) {
       const info = L.control();
 
       info.onAdd = function () {
-        this._div = L.DomUtil.create('div', 'info');
+        this._div = L.DomUtil.create('div', 'info'); // 创建一个div来显示信息
         this.update();
         return this._div;
       };
 
       info.update = function (props) {
-        console.log('Update info with props:', props); // 调试信息
         this._div.innerHTML = '<h4>COVID-19 Data</h4>' + (props ?
           '<b>' + props.name + '</b><br />Cases: ' + props.cases + '<br />Deaths: ' + props.deaths :
           'Hover over a state');
@@ -47,12 +50,28 @@ function ChoroplethMap({ onDataLoaded }) {
       infoRef.current = info;
 
       return () => {
-        info.remove();
+        info.remove(); // 在组件卸载时移除控件
       };
     }, [map]);
 
+    useEffect(() => {
+      if (infoRef.current) {
+        infoRef.current.update(currentInfo); // 更新当前显示的信息
+      }
+    }, [currentInfo]);
+
     return null;
   };
+
+  const defaultStyle = {
+  fillColor: '#FFFFFF',
+  weight: 2,
+  color: 'white',
+  dashArray: '',
+  fillOpacity: 0.7,
+  opacity: 1
+};
+
 
   const getColor = (cases) => {
     return cases > 2000000 ? '#800026' :
@@ -66,23 +85,24 @@ function ChoroplethMap({ onDataLoaded }) {
   };
 
   const geoJsonStyle = useMemo(() => (feature) => {
-    const stateInfo = covidData.find(data => data.state === feature.properties.name);
-    console.log('GeoJSON Style state info:', stateInfo); // 调试信息
+    const stateInfo = covidData[feature.properties.name];
+    const isHighlighted = currentInfo && feature.properties.name === currentInfo.name;
     return {
-      fillColor: stateInfo ? getColor(stateInfo.cases) : '#FFFFFF', // 使用白色作为未匹配到数据的默认颜色
-      weight: 2,
-      opacity: 1,
-      color: 'white',
-      fillOpacity: 0.7
+      fillColor: stateInfo ? getColor(stateInfo.cases) : '#FFFFFF',
+      weight: isHighlighted ? 5 : 2,
+      color: isHighlighted ? '#666' : 'white',
+      dashArray: '',
+      fillOpacity: isHighlighted ? 0.8 : 0.7,
+      opacity: 1
     };
-  }, [covidData]);
+  }, [covidData, currentInfo]);
+  
 
   const onEachFeature = (feature, layer) => {
     layer.on({
       mouseover: (e) => {
         const layer = e.target;
-        const stateInfo = covidData.find(data => data.state === feature.properties.name);
-        console.log('Mouseover state info:', stateInfo); // 调试信息
+        const stateInfo = covidData[feature.properties.name]; // 直接通过键访问
         layer.setStyle({
           weight: 5,
           color: '#666',
@@ -91,27 +111,25 @@ function ChoroplethMap({ onDataLoaded }) {
         });
         layer.bringToFront();
         if (infoRef.current) {
-          infoRef.current.update(stateInfo ? {...feature.properties, cases: stateInfo.cases, deaths: stateInfo.deaths} : feature.properties);
+          const info = stateInfo ? { ...feature.properties, cases: stateInfo.cases, deaths: stateInfo.deaths } : feature.properties;
+          setCurrentInfo(info); // 更新当前信息
+          infoRef.current.update(info);
         }
       },
       mouseout: (e) => {
         const layer = e.target;
         layer.setStyle(geoJsonStyle(feature)); // 重置为初始样式
-        if (infoRef.current) {
-          infoRef.current.update();
-        }
       }
     });
   };
 
-  return covidData.length > 0 ? (
+  return covidData && Object.keys(covidData).length > 0 ? (
     <MapContainer center={[37.8, -96]} zoom={4} style={{ height: '500px', width: '100%' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <GeoJSON data={statesData} style={geoJsonStyle} onEachFeature={onEachFeature} />
       <InfoControl />
     </MapContainer>
   ) : <p>Loading data...</p>;
-  
 }
 
 export default ChoroplethMap;
