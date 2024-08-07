@@ -11,20 +11,7 @@ app.use(
 );
 app.use(express.json());
 
-// We use express to define our various API endpoints and
-// provide their handlers that we implemented in routes.js
-// app.get('/author/:type', routes.author);
-// app.get('/random', routes.random);
-// app.get('/song/:song_id', routes.song);
-// app.get('/album/:album_id', routes.album);
-// app.get('/albums', routes.albums);
-// app.get('/album_songs/:album_id', routes.album_songs);
-// app.get('/top_songs', routes.top_songs);
-// app.get('/top_albums', routes.top_albums);
-// app.get('/search_songs', routes.search_songs);
-
 app.get('/author/:type', routes.author);
-// Pharmacy APIs
 app.get('/pharmacy', routes.pharmacy_general_info);
 app.get('/pharmacy_store_count', routes.pharmacy_store_count);
 app.get('/pharmacy_search', routes.pharmacy_search);
@@ -46,10 +33,9 @@ app.get(
 );
 app.get('/covid-country-data', routes.country_covid_data_with_position);
 app.get('/covid-data', routes.state_covid_data);
+app.get('/covid-data-county', routes.county_covid_data)
 
-// app.get('/top_songs', routes.top_songs);
-// app.get('/top_albums', routes.top_albums);
-// app.get('/search_songs', routes.search_songs);
+
 
 /**
  * auth

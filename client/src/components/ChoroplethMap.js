@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { statesData } from './us-states'; 
 const config = require('../config.json');
 
-function ChoroplethMap({ onDataLoaded }) {
+function ChoroplethMap({ onDataLoaded, onStateClick }) {
   const [covidData, setCovidData] = useState({});
   const infoRef = useRef(null);
   const [currentInfo, setCurrentInfo] = useState(null); // 用于存储当前显示的信息
@@ -64,14 +64,13 @@ function ChoroplethMap({ onDataLoaded }) {
   };
 
   const defaultStyle = {
-  fillColor: '#FFFFFF',
-  weight: 2,
-  color: 'white',
-  dashArray: '',
-  fillOpacity: 0.7,
-  opacity: 1
-};
-
+    fillColor: '#FFFFFF',
+    weight: 2,
+    color: 'white',
+    dashArray: '',
+    fillOpacity: 0.7,
+    opacity: 1
+  };
 
   const getColor = (cases) => {
     return cases > 2000000 ? '#800026' :
@@ -96,7 +95,6 @@ function ChoroplethMap({ onDataLoaded }) {
       opacity: 1
     };
   }, [covidData, currentInfo]);
-  
 
   const onEachFeature = (feature, layer) => {
     layer.on({
@@ -119,6 +117,10 @@ function ChoroplethMap({ onDataLoaded }) {
       mouseout: (e) => {
         const layer = e.target;
         layer.setStyle(geoJsonStyle(feature)); // 重置为初始样式
+      },
+      click: () => {
+        const stateName = feature.properties.name;
+        onStateClick(stateName); // 调用回调函数传递州名
       }
     });
   };

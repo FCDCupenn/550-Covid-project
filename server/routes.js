@@ -426,6 +426,52 @@ ORDER BY a.state;
   );
 }
 
+const county_covid_data = async function (req, res) {
+  connection.query(
+      `
+      SELECT
+    c.county_name,
+    c.state_name,
+    cc.total_avg_cases,
+    cc.total_avg_deaths,
+    latest_data.cases_avg AS recent_cases_avg,
+    latest_data.deaths_avg AS recent_deaths_avg,
+    f.cases AS cases,
+    f.deaths AS deaths,
+    latest_data.latest_date
+FROM
+    County c
+LEFT JOIN
+    County_Case cc ON c.county_name = cc.county AND c.state_name = cc.state
+LEFT JOIN
+    (SELECT
+        county_id,
+        MAX(date) AS latest_date,
+        cases_avg,
+        deaths_avg
+     FROM
+        COVID_Case_County
+     GROUP BY
+        county_id
+    ) latest_data ON c.county_id = latest_data.county_id
+LEFT JOIN
+    Counties_FipCaseDeath f ON c.county_name = f.county AND c.state_name = f.state AND f.date = latest_data.latest_date
+WHERE
+    latest_data.latest_date IS NOT NULL
+ORDER BY
+    c.state_name, c.county_name;
+`,  
+      (err, data) => {
+          if (err || data.length === 0) {
+              console.error(err);
+              res.status(500).json({error: 'Internal server error'});
+          } else {
+              res.json(data);
+          }
+      }
+  );
+}
+
 
 
 const login = (req, res) => {
@@ -523,5 +569,6 @@ module.exports = {
   signUp,
   country_covid_data_with_position,
   state_covid_data,
+  county_covid_data,
   // add more routes
 };

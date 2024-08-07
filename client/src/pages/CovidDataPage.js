@@ -2,22 +2,28 @@ import React, { useState } from 'react';
 import ChoroplethMap from '../components/ChoroplethMap'; // 确保路径正确
 import { Container, Box, Typography, Grid, Paper, List, ListItem, ListItemText, Divider } from '@mui/material';
 import Footer from '../components/Footer';
+import CountyDataViewer from '../components/CountyDataViewer';
 
 function CovidData() {
   const [covidSummary, setCovidSummary] = useState({ totalCases: 0, totalDeaths: 0 });
+  const [selectedState, setSelectedState] = useState('');
 
   const handleDataLoaded = (summary) => {
     setCovidSummary(summary);
   };
 
+  const handleStateClick = (stateName) => {
+    setSelectedState(stateName);
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ marginTop: 3, marginBottom: 5 }}>
-      <div>
-        <h1 className="header">United States COVID Tracker</h1>
-        <p className="subtitle">Last updated on July 25, 2024</p>
-      </div>
-        <ChoroplethMap onDataLoaded={handleDataLoaded} />
+        <div>
+          <h1 className="header">United States COVID Tracker</h1>
+          <p className="subtitle">Last updated on July 25, 2024</p>
+        </div>
+        <ChoroplethMap onDataLoaded={handleDataLoaded} onStateClick={handleStateClick} />
       </Box>
 
       <Box sx={{ marginTop: 5, marginBottom: 5 }}>
@@ -58,8 +64,9 @@ function CovidData() {
         </Grid>
       </Box>
 
-      <Footer />
+      <CountyDataViewer selectedState={selectedState} />
 
+      <Footer />
     </Container>
   );
 }

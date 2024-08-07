@@ -2,6 +2,7 @@ import React , { useState, useEffect }from 'react';
 import { Container, Box, Grid, Card, CardContent, CardActions, Button } from '@mui/material';
 import MapComponent from '../components/MapComponent';
 import Footer from '../components/Footer';
+import CountyDataViewer from '../components/CountyDataViewer';
 
 const config = require('../config.json');
 
@@ -90,7 +91,6 @@ export default function HomePage() {
           ))}
         </Grid>
       </Box>
-  
       <Footer />
       <p>{author}</p>
     </Container>
