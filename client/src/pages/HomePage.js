@@ -8,6 +8,7 @@ const config = require('../config.json');
 export default function HomePage() {
   // 设置状态来存储从 API 获取的数据
   const [covidData, setCovidData] = useState([]);
+  const [author, setAuthor] = useState("");
 
   // 当组件加载时，发起 API 请求
   useEffect(() => {
@@ -20,6 +21,13 @@ export default function HomePage() {
         console.error('Error fetching covid data:', error);
       });
   }, []); // 空数组确保只在组件加载时执行
+
+  useEffect(() => {
+    fetch(`http://${config.server_host}:${config.server_port}/author/name`)
+    .then(res => res.text())
+    .then(resText => setAuthor(resText));
+
+  }, []);
 
   const infoCards = [
     {
@@ -82,7 +90,10 @@ export default function HomePage() {
           ))}
         </Grid>
       </Box>
+  
       <Footer />
+      <p>{author}</p>
     </Container>
+    
   );
 }

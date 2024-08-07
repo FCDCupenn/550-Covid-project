@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, Container, FormControlLabel, Grid, Slider, TextField,  Divider, Link } from '@mui/material';
+import { Button, Container, Grid, Slider, TextField,  Divider } from '@mui/material';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { formatDuration } from '../helpers/formatter';
+
 import { DataGrid } from '@mui/x-data-grid';
-import { NavLink } from 'react-router-dom';
+
 import 'leaflet/dist/leaflet.css';
 
 
@@ -13,9 +13,7 @@ const config = require('../config.json');
 export default function Pharmacy() {
   // We use the setState hook to persist information across renders (such as the result of our API calls)
   // TODO (TASK 13): add a state variable to store the app author (default to '')
-  const [author, setAuthor] = useState("");
-
-  const [selectedState, setSelectedState] = useState('');
+  // const [author, setAuthor] = useState("");
   const [state_name, setStateName] = useState('');
   const [cities, setCities] = useState([]);
   const [selectedCity, setSelectedCity] = useState('');
@@ -28,18 +26,12 @@ export default function Pharmacy() {
   const [data, setData] = useState([]);
 
 
+  // useEffect(() => {
+  //   fetch(`http://${config.server_host}:${config.server_port}/author/name`)
+  //   .then(res => res.text())
+  //   .then(resText => setAuthor(resText));
 
-  // The useEffect hook by default runs the provided callback after every render
-  // The second (optional) argument, [], is the dependency array which signals
-  // to the hook to only run the provided callback if the value of the dependency array
-  // changes from the previous render. In this case, an empty array means the callback
-  // will only run on the very first render.
-  useEffect(() => {
-    fetch(`http://${config.server_host}:${config.server_port}/author/name`)
-    .then(res => res.text())
-    .then(resText => setAuthor(resText));
-
-  }, []);
+  // }, []);
 
   useEffect(() => {
     if (state_name) {
@@ -51,27 +43,7 @@ export default function Pharmacy() {
     }
   }, [state_name]);
 
-  // useEffect(() => {
 
-  //     fetch(`http://${config.server_host}:${config.server_port}/pharmacy_selectCity?state_name=${state_name}`)
-  //     .then(res => res.json())
-  //     .then(resJson => setCities(resJson));
-      
-  //   },[state_name]);
-
-
-
-  // useEffect(() => {
-  //   fetch(`http://${config.server_host}:${config.server_port}/pharmacy_search`)
-  //   .then(res => res.json())
-  //   .then(resJson => {
-  //     console.log("Received data:", resJson);
-  //     const pharmacyWithID = resJson.map((pharmacy) => ({id: pharmacy.store_id, ...pharmacy }));
-  //     console.log("Processed data for setting state:", pharmacyWithID);
-  //     setData(pharmacyWithID);
-
-  //   });
-  // }, [])
 
   const search = () => {
     fetch(`http://${config.server_host}:${config.server_port}/pharmacy_search?state_name=${state_name}` + 
@@ -299,7 +271,12 @@ export default function Pharmacy() {
       <h2>Results</h2>
       <DataGrid
         rows={data}
-        columns={pharmacy_general_info_column}
+        // columns={pharmacy_general_info_column}
+        columns={pharmacy_general_info_column.map(column => ({
+          ...column,
+          width: column.width || 200,  // Set default width if not specified
+          flex: column.flex || 0       // Use flex only if explicitly set
+        }))}
         pageSize={pageSize}
         rowsPerPageOptions={[5, 10, 25]}
         onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
@@ -309,7 +286,7 @@ export default function Pharmacy() {
 
       
         
-      <p>{author}</p>
+      {/* <p>{author}</p> */}
 
     </Container>
     

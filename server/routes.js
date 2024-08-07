@@ -19,7 +19,7 @@ connection.connect((err) => err && console.log(err));
 // Route 1: GET /author/:type
 const author = async function (req, res) {
   // TODO (TASK 1): replace the values of name and pennKey with your own
-  const name = 'Xin Sun';
+  const name = 'Xin Sun, WenBin Hong, Yilin Wang, Zhe Zhao';
   const pennKey = '77821283';
 
   // checks the value of type the request parameters
@@ -40,91 +40,6 @@ const author = async function (req, res) {
   }
 };
 
-// // Route 2: GET /random
-// const random = async function(req, res) {
-//   // you can use a ternary operator to check the value of request query values
-//   // which can be particularly useful for setting the default value of queries
-//   // note if users do not provide a value for the query it will be undefined, which is falsey
-//   const explicit = req.query.explicit === 'true' ? 1 : 0;
-
-//   // Here is a complete example of how to query the database in JavaScript.
-//   // Only a small change (unrelated to querying) is required for TASK 3 in this route.
-//   connection.query(`
-//     SELECT *
-//     FROM Songs
-//     WHERE explicit <= ${explicit}
-//     ORDER BY RAND()
-//     LIMIT 1
-//   `, (err, data) => {
-//     if (err || data.length === 0) {
-//       // If there is an error for some reason, or if the query is empty (this should not be possible)
-//       // print the error message and return an empty object instead
-//       console.log(err);
-//       // Be cognizant of the fact we return an empty object {}. For future routes, depending on the
-//       // return type you may need to return an empty array [] instead.
-//       res.json({});
-//     } else {
-//       // Here, we return results of the query as an object, keeping only relevant data
-//       // being song_id and title which you will add. In this case, there is only one song
-//       // so we just directly access the first element of the query results array (data)
-//       // TODO (TASK 3): also return the song title in the response
-//       res.json({
-//         song_id: data[0].song_id,
-//         title: data[0].title,
-//         // explicit: data[0].explicit
-//       });
-//     }
-//   });
-// }
-
-/********************************
- * BASIC Covid Related INFO ROUTES *
- ********************************/
-
-// Route 3: GET /pharmacy_store_count/:store_id
-// const pharmacy_store_count = async function(req, res) {
-//   // TODO (TASK 4): implement a route that given a song_id, returns all information about the song
-//   // Hint: unlike route 2, you can directly SELECT * and just return data[0]
-//   // Most of the code is already written for you, you just need to fill in the query
-//   const store_id = req.params.store_id
-
-//   connection.query(`
-//   SELECT state, COUNT(DISTINCT store_id) AS provider_count
-//   FROM Pharmacy
-//   GROUP BY state
-//   ORDER BY COUNT(store_id) DESC;
-
-//   `, [store_id], (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json({});
-//     } else {
-//       res.json(data[0]);
-//     }
-//   });
-// }
-
-// // Route 4: GET /album/:album_id
-// const fully_vaccination_count = async function(req, res) {
-//   // TODO (TASK 5): implement a route that given a album_id, returns all information about the album
-//   const people_fully_vaccinated = req.params.people_fully_vaccinated
-
-//   connection.query(`
-//   SELECT state_name, MAX(people_fully_vaccinated) AS total_fully_vaccinated
-//   FROM State_Vaccination_Data
-//   WHERE state_name != 'United States'
-//   GROUP BY state_name
-//   ORDER BY MAX(people_fully_vaccinated) DESC;
-
-//   `, [album_id], (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json({});
-//     } else {
-//       res.json(data[0]);
-//     }
-//   });
-// }
 
 const pharmacy_general_info = async function (req, res) {
   // given pharmacy, return all store count by each state
@@ -238,46 +153,6 @@ const pharmacy_search = async function (req, res) {
           }
         });
 };
-
-
-// // Route 9: GET /search_albums
-// const search_songs = async function(req, res) {
-//   // TODO (TASK 12): return all songs that match the given search query with parameters defaulted to those specified in API spec ordered by title (ascending)
-//   // Some default parameters have been provided for you, but you will need to fill in the rest
-//   const title = req.query.title ?? '%';
-//   const durationLow = req.query.duration_low ?? 60;
-//   const durationHigh = req.query.duration_high ?? 660;
-//   const playsLow = req.query.plays_low ?? 0;
-//   const playsHigh = req.query.plays_high ?? 1100000000;
-//   const energyLow = req.query.energy_low ?? 0;
-//   const energyHigh = req.query.energy_high ?? 1;
-//   const danceabilityLow = req.query.danceability_low ?? 0;
-//   const danceabilityHigh = req.query.danceability_high ?? 1;
-//   const valenceLow = req.query.valence_low ?? 0;
-//   const valenceHigh = req.query.valence_high ?? 1;
-//   const explicit = req.query.explicit === 'true' ? 1 : 0;
-
-//   connection.query(`
-//     SELECT *
-//     FROM Songs
-//     WHERE title LIKE '%${title}%' AND
-//           duration BETWEEN ${durationLow} AND ${durationHigh} AND
-//           plays BETWEEN ${playsLow} AND ${playsHigh} AND
-//           energy BETWEEN ${energyLow} AND ${energyHigh} AND
-//           danceability BETWEEN ${danceabilityLow} AND ${danceabilityHigh} AND
-//           valence BETWEEN ${valenceLow} AND ${valenceHigh} AND
-//           explicit <= ${explicit}
-//     ORDER BY title ASC
-// `, (err, data) => {
-//     if (err || data.length === 0) {
-//       console.log(err);
-//       res.json([]);
-//     } else {
-//       res.json(data);
-//     }
-//   });
-
-// }
 
 
 
