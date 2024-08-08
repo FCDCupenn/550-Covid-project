@@ -2,7 +2,7 @@
 
 #### Prerequisites
 Ensure your system has the following software installed:
-- Node.js (latest stable version recommended)
+- Node.js (use 19 or 16 version)
 - Git
 
 #### Clone the Repository
