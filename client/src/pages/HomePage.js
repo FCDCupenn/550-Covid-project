@@ -35,7 +35,7 @@ export default function HomePage() {
       title: 'Go See US Data',
       description: 'Stay updated with the latest COVID-19 statistics and trends in the United States. Regularly check the data to understand the current situation and make informed decisions.',
       buttonText: 'View US Data',
-      link: '/covid-data',  // 请将 '#' 替换为实际的链接
+      link: '/covid-data',  
       icon: '📊'
     },
     {

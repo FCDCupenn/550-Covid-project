@@ -13,7 +13,7 @@ const MapComponent = ({ data }) => {
     // 计算圆的大小
     const calculateRadius = (cases) => {
       const minRadius = 1; // 最小半径
-      const maxRadius = 10; // 最大半径
+      const maxRadius = 12; // 最大半径
       // 使用对数缩放确保大小均匀分布
       const radius = Math.log(cases + 1) / Math.log(maxCases + 1) * maxRadius;
       return Math.max(radius, minRadius);

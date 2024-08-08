@@ -27,7 +27,6 @@ function CountyDataViewer({ selectedState }) {
     }
   }, [selectedState, selectedStateFromDropdown, allData]);
 
-  // 更新下拉框的选择状态，不影响用户自己选择的操作
   useEffect(() => {
     if (selectedState) {
       setSelectedStateFromDropdown(selectedState);
@@ -59,10 +58,14 @@ function CountyDataViewer({ selectedState }) {
           <TableHead>
             <TableRow>
               <TableCell>County Name</TableCell>
-              <TableCell align="right">Total Average Cases</TableCell>
-              <TableCell align="right">Total Average Deaths</TableCell>
-              <TableCell align="right">Recent Cases Avg</TableCell>
-              <TableCell align="right">Recent Deaths Avg</TableCell>
+              <TableCell>State Name</TableCell>
+              <TableCell>Total Average Cases</TableCell>
+              <TableCell>Total Average Deaths</TableCell>
+              <TableCell>Recent Cases Avg</TableCell>
+              <TableCell>Recent Deaths Avg</TableCell>
+              <TableCell>Cases</TableCell>
+              <TableCell>Deaths</TableCell>
+              
             </TableRow>
           </TableHead>
           <TableBody>
@@ -71,10 +74,14 @@ function CountyDataViewer({ selectedState }) {
                 <TableCell component="th" scope="row">
                   {row.county_name}
                 </TableCell>
-                <TableCell align="right">{row.total_avg_cases}</TableCell>
-                <TableCell align="right">{row.total_avg_deaths}</TableCell>
-                <TableCell align="right">{row.recent_cases_avg}</TableCell>
-                <TableCell align="right">{row.recent_deaths_avg}</TableCell>
+                <TableCell>{row.state_name}</TableCell>
+                <TableCell>{row.total_avg_cases}</TableCell>
+                <TableCell>{row.total_avg_deaths}</TableCell>
+                <TableCell>{row.recent_cases_avg}</TableCell>
+                <TableCell>{row.recent_deaths_avg}</TableCell>
+                <TableCell>{row.cases}</TableCell>
+                <TableCell>{row.deaths}</TableCell>
+                
               </TableRow>
             ))}
           </TableBody>

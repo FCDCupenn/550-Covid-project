@@ -2,7 +2,6 @@ const mysql = require('mysql');
 const config = require('./config.json');
 
 // Creates MySQL connection using database credential provided in config.json
-// Do not edit. If the connection fails, make sure to check that config.json is filled out correctly
 const connection = mysql.createConnection({
   host: config.rds_host,
   user: config.rds_user,
@@ -13,7 +12,7 @@ const connection = mysql.createConnection({
 connection.connect((err) => err && console.log(err));
 
 /******************
- * WARM UP ROUTES *
+ * ] ROUTES *
  ******************/
 
 // Route 1: GET /author/:type
@@ -28,10 +27,8 @@ const author = async function (req, res) {
     // res.send returns data back to the requester via an HTTP response
     res.send(`Created by ${name}`);
   } else if (req.params.type === 'pennkey') {
-    // TODO (TASK 2): edit the else if condition to check if the request parameter is 'pennkey' and if so, send back response 'Created by [pennkey]'
-    res.send(`Created by ${pennKey}`);
+     res.send(`Created by ${pennKey}`);
   } else {
-    // we can also send back an HTTP status code to indicate an improper request
     res
       .status(400)
       .send(
@@ -385,7 +382,6 @@ const vaccination_case_fatality_analysis = async function (req, res) {
     }
   );
 };
-
 
 
 const country_covid_data_with_position = async function (req, res) {
